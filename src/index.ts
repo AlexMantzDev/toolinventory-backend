@@ -1,3 +1,6 @@
+import ToolService from "./application/services/ToolService";
+import ToolController from "./infrastructure/api/controllers/tool.controller";
+
 class Main {
   constructor() {}
 
