@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-class SequelizeInstance {
+export class SequelizeInstance {
   private static sequelize: Sequelize;
 
   private constructor() {}
@@ -24,4 +24,5 @@ class SequelizeInstance {
 }
 
 const sequelizeInstance = SequelizeInstance.getInstance();
+
 export default sequelizeInstance;

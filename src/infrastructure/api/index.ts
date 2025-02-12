@@ -1,7 +1,15 @@
-import express, { Application } from "express";
+import express, {
+  Application,
+  Handler,
+  NextFunction,
+  Request,
+  Response,
+  Router,
+} from "express";
 import http, { Server } from "node:http";
+import ToolRoutes from "./routes/tool.routes";
 
-class HttpServer {
+export default class HttpServer {
   private static instance: HttpServer;
   private server: Server;
   private app: Application;
@@ -22,6 +30,8 @@ class HttpServer {
     return this.app;
   };
 
+  public initialize = () => {};
+
   public start = (port: number): void => {
     this.server.listen(port, () => {
       console.log(`server running at http://localhost:${port}/`);
@@ -31,7 +41,14 @@ class HttpServer {
   public getServer = (): Server => {
     return this.server;
   };
+
+  public addRoutes = (path: string, router: Router) => {
+    this.app.use(path, router);
+  };
+
+  public addMiddleware = (middleware: Handler) => {
+    this.app.use(middleware);
+  };
 }
 
-const httpServer = HttpServer.getInstance();
-export default httpServer;
+export const httpServer = HttpServer.getInstance();

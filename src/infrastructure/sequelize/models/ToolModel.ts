@@ -20,13 +20,21 @@ ToolModel.init(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM,
+      type: DataTypes.ENUM(
+        "serviceable",
+        "issued",
+        "broken",
+        "hold",
+        "calibration due",
+        "inspection due"
+      ),
       allowNull: false,
     },
   },
   {
     sequelize,
     modelName: "Tool",
+    tableName: "tools",
   }
 );
 
