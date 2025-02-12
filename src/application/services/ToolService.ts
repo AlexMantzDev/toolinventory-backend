@@ -10,8 +10,8 @@ export default class ToolService {
 
   public addTool = async (toolDTO: ToolDTO): Promise<void> => {
     const tool = new Tool(toolDTO.id, toolDTO.name);
-    const promise = await this.toolRepository.save(tool);
-    return promise;
+    await this.toolRepository.save(tool);
+    return;
   };
 
   public updateTool = async (
@@ -40,25 +40,28 @@ export default class ToolService {
     if (!tool) {
       // TODO: error handling
     }
-    const promise = await this.toolRepository.delete(toolId);
-    return promise;
+    await this.toolRepository.delete(toolId);
+    return;
   };
 
-  findTool = async (toolId: string): Promise<Tool> => {
+  public findTool = async (toolId: string): Promise<Tool> => {
     try {
       const tool = await this.toolRepository.getById(toolId);
       if (!tool) {
         // TODO: error handling
-        throw new Error("tool not found.");
+        throw new NotFoundError("Could not find tool with id: " + toolId);
       }
       return tool;
     } catch (err) {
       console.log(err);
-      throw err;
+      if (err instanceof CustomError) {
+        throw err;
+      }
+      throw new InternalServerError("Internal server error.");
     }
   };
 
-  listAllTools = async (): Promise<Tool[]> => {
+  public listAllTools = async (): Promise<Tool[]> => {
     const tools = await this.toolRepository.getAll();
     if (!tools) {
       // TODO: error handling
