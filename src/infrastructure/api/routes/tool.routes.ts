@@ -7,6 +7,18 @@ export default class ToolRoutes {
     this.router = Router();
     this.router.get("/", this.toolController.getAllTools.bind(toolController));
     this.router.post("/", this.toolController.addTool.bind(toolController));
+    this.router.get(
+      "/:id",
+      this.toolController.getToolById.bind(toolController)
+    );
+    this.router.put(
+      "/:id",
+      this.toolController.updateTool.bind(toolController)
+    );
+    this.router.delete(
+      "/:id",
+      this.toolController.deleteToolById.bind(toolController)
+    );
   }
 
   public getRouter = (): Router => {

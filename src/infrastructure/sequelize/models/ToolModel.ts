@@ -7,6 +7,8 @@ class ToolModel extends Model {
   public id!: string;
   public name!: string;
   public status!: ToolStatus;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 ToolModel.init(
@@ -30,11 +32,22 @@ ToolModel.init(
       ),
       allowNull: false,
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     sequelize,
     modelName: "Tool",
     tableName: "tools",
+    timestamps: true,
   }
 );
 

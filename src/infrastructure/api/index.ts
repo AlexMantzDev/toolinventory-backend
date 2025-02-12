@@ -3,6 +3,7 @@ import express, {
   Handler,
   NextFunction,
   Request,
+  RequestHandler,
   Response,
   Router,
 } from "express";
@@ -46,7 +47,7 @@ export default class HttpServer {
     this.app.use(path, router);
   };
 
-  public addMiddleware = (middleware: Handler) => {
+  public addMiddleware = (middleware: RequestHandler) => {
     this.app.use(middleware);
   };
 }

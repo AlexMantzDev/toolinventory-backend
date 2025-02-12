@@ -4,14 +4,22 @@ import ToolDTO from "../dtos/ToolDTO";
 import NotFoundError from "../../error/NotFoundError";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
+import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 
 export default class ToolService {
   constructor(private toolRepository: ToolRepository) {}
 
   public addTool = async (toolDTO: ToolDTO): Promise<void> => {
-    const tool = new Tool(toolDTO.id, toolDTO.name);
-    await this.toolRepository.save(tool);
-    return;
+    try {
+      const tool = new Tool(toolDTO.id, toolDTO.name, toolDTO.status);
+      await this.toolRepository.save(tool);
+      return;
+    } catch (err) {
+      if (err instanceof CustomError) {
+        throw err;
+      }
+      throw new InternalServerError("Internal server error.");
+    }
   };
 
   public updateTool = async (
@@ -23,11 +31,10 @@ export default class ToolService {
       if (!foundTool) {
         throw new NotFoundError("Could not find tool with id: " + ToolId);
       }
-      const newTool = new Tool(ToolDTO.id, ToolDTO.name);
-      const promise = await this.toolRepository.update(ToolId, newTool);
-      return promise;
+      const newTool = new Tool(ToolDTO.id, ToolDTO.name, ToolDTO.status);
+      await this.toolRepository.update(ToolId, newTool);
+      return;
     } catch (err) {
-      console.error(err);
       if (err instanceof CustomError) {
         throw err;
       }
@@ -44,16 +51,14 @@ export default class ToolService {
     return;
   };
 
-  public findTool = async (toolId: string): Promise<Tool> => {
+  public findTool = async (toolId: string): Promise<ToolEntity> => {
     try {
-      const tool = await this.toolRepository.getById(toolId);
+      const tool: ToolEntity | null = await this.toolRepository.getById(toolId);
       if (!tool) {
-        // TODO: error handling
         throw new NotFoundError("Could not find tool with id: " + toolId);
       }
       return tool;
     } catch (err) {
-      console.log(err);
       if (err instanceof CustomError) {
         throw err;
       }
@@ -61,8 +66,8 @@ export default class ToolService {
     }
   };
 
-  public listAllTools = async (): Promise<Tool[]> => {
-    const tools = await this.toolRepository.getAll();
+  public listAllTools = async (): Promise<ToolEntity[]> => {
+    const tools: ToolEntity[] | [] = await this.toolRepository.getAll();
     if (!tools) {
       // TODO: error handling
     }

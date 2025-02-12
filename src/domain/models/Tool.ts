@@ -11,10 +11,10 @@ export default class Tool {
   private name: string;
   private status: ToolStatus;
 
-  constructor(id: string, name: string) {
+  constructor(id: string, name: string, status: ToolStatus) {
     this.id = id;
     this.name = name;
-    this.status = "serviceable";
+    this.status = status;
   }
 
   public getId = (): string => {

@@ -3,6 +3,7 @@ import ToolRepository from "../../domain/repositories/ToolRepository";
 import Tool from "../../domain/models/Tool";
 import ToolDTO from "../../application/dtos/ToolDTO";
 import NotFoundError from "../../error/NotFoundError";
+import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 
 // Mock ToolRepository
 const mockToolRepository: jest.Mocked<ToolRepository> = {
@@ -33,7 +34,13 @@ describe("ToolService", () => {
   });
 
   test("should find an existing tool", async () => {
-    const tool = new Tool("2", "Wrench");
+    const tool = new ToolEntity(
+      "2",
+      "Wrench",
+      "serviceable",
+      new Date(Date.now()),
+      new Date(Date.now())
+    );
     mockToolRepository.getById.mockResolvedValue(tool);
 
     const result = await toolService.findTool("2");
