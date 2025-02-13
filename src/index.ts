@@ -4,7 +4,7 @@ import { httpServer } from "./infrastructure/api";
 import ToolRoutes from "./infrastructure/api/routes/tool.routes";
 import { json } from "express";
 import ToolRepository from "./infrastructure/persistence/repositories/ToolRepository";
-import ToolDAOImpl from "./infrastructure/persistence/dao-impls/ToolDAOImpl";
+import ToolDAOImpl from "./infrastructure/persistence/dao-impls/ToolDAOImplSequelize";
 
 class Main {
   private constructor() {}

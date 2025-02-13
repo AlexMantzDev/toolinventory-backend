@@ -1,10 +1,5 @@
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import Tool from "../models/Tool";
+import GenericDAO from "./GenericDAO";
 
-export default interface ToolDAO {
-  save(tool: Tool): Promise<void>;
-  getById(id: string): Promise<ToolEntity | null>;
-  getAll(): Promise<ToolEntity[]>;
-  update(id: string, tool: Tool): Promise<void>;
-  delete(id: string): Promise<void>;
-}
+export default interface ToolDAO extends GenericDAO<Tool, ToolEntity> {}

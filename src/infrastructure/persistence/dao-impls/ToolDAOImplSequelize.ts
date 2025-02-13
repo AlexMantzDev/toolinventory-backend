@@ -6,7 +6,7 @@ import CustomError from "../../../error/CustomError";
 import ToolEntity from "../entities/ToolEntity";
 import ToolDAO from "../../../domain/daos/ToolDAO";
 
-export default class ToolDAOImpl implements ToolDAO {
+export default class ToolDAOImplSequelize implements ToolDAO {
   constructor() {}
 
   async save(tool: Tool): Promise<void> {

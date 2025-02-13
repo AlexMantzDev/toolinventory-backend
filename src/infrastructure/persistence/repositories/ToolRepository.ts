@@ -4,8 +4,11 @@ import CustomError from "../../../error/CustomError";
 import InternalServerError from "../../../error/InternalServerError";
 import NotFoundError from "../../../error/NotFoundError";
 import ToolEntity from "../entities/ToolEntity";
+import GenericRepository from "./GenericRepository";
 
-export default class ToolRepository {
+export default class ToolRepository
+  implements GenericRepository<Tool, ToolEntity>
+{
   constructor(private toolDAO: ToolDAO) {}
 
   public save = async (tool: Tool): Promise<void> => {
@@ -59,7 +62,7 @@ export default class ToolRepository {
     }
   };
 
-  public delete = async (id: string) => {
+  public delete = async (id: string): Promise<void> => {
     try {
       await this.toolDAO.delete(id);
       return;
