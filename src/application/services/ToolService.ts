@@ -1,10 +1,10 @@
-import ToolRepository from "../../domain/repositories/ToolRepository";
 import Tool from "../../domain/models/Tool";
 import ToolDTO from "../dtos/ToolDTO";
 import NotFoundError from "../../error/NotFoundError";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
+import ToolRepository from "../../infrastructure/persistence/repositories/ToolRepository";
 
 export default class ToolService {
   constructor(private toolRepository: ToolRepository) {}
@@ -53,10 +53,7 @@ export default class ToolService {
 
   public findTool = async (toolId: string): Promise<ToolEntity> => {
     try {
-      const tool: ToolEntity | null = await this.toolRepository.getById(toolId);
-      if (!tool) {
-        throw new NotFoundError("Could not find tool with id: " + toolId);
-      }
+      const tool: ToolEntity = await this.toolRepository.getById(toolId);
       return tool;
     } catch (err) {
       if (err instanceof CustomError) {
@@ -67,10 +64,14 @@ export default class ToolService {
   };
 
   public listAllTools = async (): Promise<ToolEntity[]> => {
-    const tools: ToolEntity[] | [] = await this.toolRepository.getAll();
-    if (!tools) {
-      // TODO: error handling
+    try {
+      const tools: ToolEntity[] = await this.toolRepository.getAll();
+      return tools;
+    } catch (err) {
+      if (err instanceof CustomError) {
+        throw err;
+      }
+      throw new InternalServerError("Internal server error.");
     }
-    return tools;
   };
 }

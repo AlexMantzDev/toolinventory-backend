@@ -1,9 +1,10 @@
 import ToolService from "./application/services/ToolService";
 import ToolController from "./infrastructure/api/controllers/tool.controller";
-import ToolRepositoryImpl from "./infrastructure/persistence/repositories/ToolRepositoryImpl";
 import { httpServer } from "./infrastructure/api";
 import ToolRoutes from "./infrastructure/api/routes/tool.routes";
 import { json } from "express";
+import ToolRepository from "./infrastructure/persistence/repositories/ToolRepository";
+import ToolDAOImpl from "./infrastructure/persistence/dao-impls/ToolDAOImpl";
 
 class Main {
   private constructor() {}
@@ -11,7 +12,8 @@ class Main {
   static start = () => {
     new Main();
     console.log("Creating tool repository...");
-    const toolRepository = new ToolRepositoryImpl();
+    const toolDAO = new ToolDAOImpl();
+    const toolRepository = new ToolRepository(toolDAO);
     console.log("Creating tool service...");
     const toolService = new ToolService(toolRepository);
     console.log("Creating tool controller...");

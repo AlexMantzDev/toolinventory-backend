@@ -1,7 +1,7 @@
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import Tool from "../models/Tool";
 
-export default interface ToolRepository {
+export default interface ToolDAO {
   save(tool: Tool): Promise<void>;
   getById(id: string): Promise<ToolEntity | null>;
   getAll(): Promise<ToolEntity[]>;

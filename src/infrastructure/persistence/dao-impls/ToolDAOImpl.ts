@@ -1,18 +1,17 @@
-import ToolRepository from "../../../domain/repositories/ToolRepository";
 import Tool from "../../../domain/models/Tool";
 import ToolModel from "../../sequelize/models/ToolModel";
 import NotFoundError from "../../../error/NotFoundError";
 import InternalServerError from "../../../error/InternalServerError";
 import CustomError from "../../../error/CustomError";
 import ToolEntity from "../entities/ToolEntity";
+import ToolDAO from "../../../domain/daos/ToolDAO";
 
-export default class ToolRepositoryImpl implements ToolRepository {
+export default class ToolDAOImpl implements ToolDAO {
   constructor() {}
 
   async save(tool: Tool): Promise<void> {
     try {
-      console.log("creating tool...");
-      const newTool = await ToolModel.create({
+      const newTool: ToolModel = await ToolModel.create({
         id: tool.getId(),
         name: tool.getName(),
         status: tool.getStatus(),

@@ -1,12 +1,12 @@
 import ToolService from "../../application/services/ToolService";
-import ToolRepository from "../../domain/repositories/ToolRepository";
-import Tool from "../../domain/models/Tool";
 import ToolDTO from "../../application/dtos/ToolDTO";
 import NotFoundError from "../../error/NotFoundError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
+import ToolRepository from "../../infrastructure/persistence/repositories/ToolRepository";
+import ToolDAO from "../../domain/daos/ToolDAO";
 
-// Mock ToolRepository
-const mockToolRepository: jest.Mocked<ToolRepository> = {
+// Mock ToolDAO
+const mockToolDAO: jest.Mocked<ToolDAO> = {
   save: jest.fn(),
   getById: jest.fn(),
   getAll: jest.fn(),
@@ -14,8 +14,11 @@ const mockToolRepository: jest.Mocked<ToolRepository> = {
   delete: jest.fn(),
 };
 
+// Mock ToolRepository
+const toolRepository = new ToolRepository(mockToolDAO);
+
 // Create an instance of ToolService with the mocked repository
-const toolService = new ToolService(mockToolRepository);
+const toolService = new ToolService(toolRepository);
 
 describe("ToolService", () => {
   afterEach(() => {
@@ -27,8 +30,8 @@ describe("ToolService", () => {
 
     await toolService.addTool(toolDTO);
 
-    expect(mockToolRepository.save).toHaveBeenCalledTimes(1);
-    expect(mockToolRepository.save).toHaveBeenCalledWith(
+    expect(mockToolDAO.save).toHaveBeenCalledTimes(1);
+    expect(mockToolDAO.save).toHaveBeenCalledWith(
       expect.objectContaining({ id: "1", name: "Hammer" })
     );
   });
@@ -41,18 +44,18 @@ describe("ToolService", () => {
       new Date(Date.now()),
       new Date(Date.now())
     );
-    mockToolRepository.getById.mockResolvedValue(tool);
+    mockToolDAO.getById.mockResolvedValue(tool);
 
     const result = await toolService.findTool("2");
 
     expect(result).toBe(tool);
-    expect(mockToolRepository.getById).toHaveBeenCalledWith("2");
+    expect(mockToolDAO.getById).toHaveBeenCalledWith("2");
   });
 
   test("should throw NotFoundError when tool is not found", async () => {
-    mockToolRepository.getById.mockResolvedValue(null);
+    mockToolDAO.getById.mockResolvedValue(null);
 
     await expect(toolService.findTool("99")).rejects.toThrow(NotFoundError);
-    expect(mockToolRepository.getById).toHaveBeenCalledWith("99");
+    expect(mockToolDAO.getById).toHaveBeenCalledWith("99");
   });
 });

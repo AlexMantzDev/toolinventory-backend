@@ -1,10 +1,13 @@
-import Employee from "../../domain/models/Employee";
-import Tool from "../../domain/models/Tool";
-
 export default class EmployeeService {
   constructor() {}
 
-  issueToolToEmployee = (employee: Employee, tool: Tool): void => {};
+  public addEmployee = async () => {};
 
-  returnToolFromEmployee = (employee: Employee, tool: Tool): void => {};
+  public updateEmployee = async () => {};
+
+  public deleteEmployee = async () => {};
+
+  public findEmployee = async () => {};
+
+  public listAllEmployee = async () => {};
 }
