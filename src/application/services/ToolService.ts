@@ -4,7 +4,7 @@ import NotFoundError from "../../error/NotFoundError";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
-import ToolRepository from "../../infrastructure/persistence/repositories/ToolRepository";
+import ToolRepository from "../repositories/ToolRepository";
 
 export default class ToolService {
   constructor(private toolRepository: ToolRepository) {}

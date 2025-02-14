@@ -1,9 +1,9 @@
-import ToolDAO from "../../../domain/daos/ToolDAO";
-import Tool from "../../../domain/models/Tool";
-import CustomError from "../../../error/CustomError";
-import InternalServerError from "../../../error/InternalServerError";
-import NotFoundError from "../../../error/NotFoundError";
-import ToolEntity from "../entities/ToolEntity";
+import ToolDAO from "../../domain/daos/ToolDAO";
+import Tool from "../../domain/models/Tool";
+import CustomError from "../../error/CustomError";
+import InternalServerError from "../../error/InternalServerError";
+import NotFoundError from "../../error/NotFoundError";
+import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import GenericRepository from "./GenericRepository";
 
 export default class ToolRepository

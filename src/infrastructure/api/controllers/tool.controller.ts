@@ -3,11 +3,12 @@ import ToolService from "../../../application/services/ToolService";
 import ToolDTO from "../../../application/dtos/ToolDTO";
 import NotFoundError from "../../../error/NotFoundError";
 import ToolEntity from "../../persistence/entities/ToolEntity";
+import Controller from "../interfaces/controller";
 
-export default class ToolController {
+export default class ToolController implements Controller {
   constructor(private toolService: ToolService) {}
 
-  public addTool = async (req: Request, res: Response) => {
+  public create = async (req: Request, res: Response): Promise<void> => {
     try {
       const { tool }: { tool: ToolDTO } = req.body;
       await this.toolService.addTool(tool);
@@ -17,7 +18,7 @@ export default class ToolController {
     }
   };
 
-  public updateTool = async (req: Request, res: Response) => {
+  public update = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     try {
       const { tool }: { tool: ToolDTO } = req.body;
@@ -32,7 +33,7 @@ export default class ToolController {
     }
   };
 
-  public getToolById = async (req: Request, res: Response) => {
+  public findById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
       const tool: ToolEntity = await this.toolService.findTool(id);
@@ -46,7 +47,7 @@ export default class ToolController {
     }
   };
 
-  public getAllTools = async (req: Request, res: Response) => {
+  public findAll = async (req: Request, res: Response) => {
     try {
       const tools: ToolEntity[] = await this.toolService.listAllTools();
       res.status(200).json({ tools });
@@ -55,7 +56,7 @@ export default class ToolController {
     }
   };
 
-  public deleteToolById = async (req: Request, res: Response) => {
+  public delete = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
       await this.toolService.deleteTool(id);

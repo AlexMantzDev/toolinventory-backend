@@ -2,7 +2,7 @@ import ToolService from "../../application/services/ToolService";
 import ToolDTO from "../../application/dtos/ToolDTO";
 import NotFoundError from "../../error/NotFoundError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
-import ToolRepository from "../../infrastructure/persistence/repositories/ToolRepository";
+import ToolRepository from "../repositories/ToolRepository";
 import ToolDAO from "../../domain/daos/ToolDAO";
 
 // Mock ToolDAO

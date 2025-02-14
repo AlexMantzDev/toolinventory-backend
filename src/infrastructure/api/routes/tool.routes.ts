@@ -1,27 +1,23 @@
 import { Router } from "express";
-import ToolController from "../controllers/tool.controller";
+import Controller from "../interfaces/controller";
+import Routes from "../interfaces/routes";
 
-export default class ToolRoutes {
-  private router: Router;
-  constructor(private toolController: ToolController) {
-    this.router = Router();
-    this.router.get("/", this.toolController.getAllTools.bind(toolController));
-    this.router.post("/", this.toolController.addTool.bind(toolController));
-    this.router.get(
-      "/:id",
-      this.toolController.getToolById.bind(toolController)
-    );
-    this.router.put(
-      "/:id",
-      this.toolController.updateTool.bind(toolController)
-    );
-    this.router.delete(
-      "/:id",
-      this.toolController.deleteToolById.bind(toolController)
-    );
+export default class ToolRoutes implements Routes {
+  private readonly _router: Router;
+  constructor(private readonly _controller: Controller) {
+    this._router = Router();
+    this._router.get("/", this._controller.findAll.bind(_controller));
+    this._router.post("/", this._controller.create.bind(_controller));
+    this._router.get("/:id", this._controller.findById.bind(_controller));
+    this._router.put("/:id", this._controller.update.bind(_controller));
+    this._router.delete("/:id", this._controller.delete.bind(_controller));
   }
 
-  public getRouter = (): Router => {
-    return this.router;
-  };
+  public get controller(): Controller {
+    return this._controller;
+  }
+
+  public get router(): Router {
+    return this._router;
+  }
 }

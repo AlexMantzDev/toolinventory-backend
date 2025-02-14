@@ -3,7 +3,7 @@ import ToolController from "./infrastructure/api/controllers/tool.controller";
 import { httpServer } from "./infrastructure/api";
 import ToolRoutes from "./infrastructure/api/routes/tool.routes";
 import { json } from "express";
-import ToolRepository from "./infrastructure/persistence/repositories/ToolRepository";
+import ToolRepository from "./application/repositories/ToolRepository";
 import ToolDAOImpl from "./infrastructure/persistence/dao-impls/ToolDAOImplSequelize";
 
 class Main {
@@ -20,9 +20,10 @@ class Main {
     const toolController = new ToolController(toolService);
     console.log("Creating tool routes...");
     const toolRoutes = new ToolRoutes(toolController);
-    console.log("Assigning routes to Express...");
+    console.log("Setting up middleware...");
     httpServer.addMiddleware(json());
-    httpServer.addRoutes("/api/v1/tools", toolRoutes.getRouter());
+    console.log("Assigning routes to Express...");
+    httpServer.addRoutes("/api/v1/tools", toolRoutes.router);
     console.log("Starting Express application...");
     httpServer.start(5000);
   };
