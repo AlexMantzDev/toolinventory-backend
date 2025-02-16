@@ -4,9 +4,9 @@ import NotFoundError from "../../../error/NotFoundError";
 import InternalServerError from "../../../error/InternalServerError";
 import CustomError from "../../../error/CustomError";
 import ToolEntity from "../entities/ToolEntity";
-import ToolDAO from "../../../domain/daos/ToolDAO";
+import DAO from "../../../domain/daos/DAO";
 
-export default class ToolDAOImplSequelize implements ToolDAO {
+export default class ToolDAOImplSequelize implements DAO<Tool, ToolEntity> {
   constructor() {}
 
   async save(tool: Tool): Promise<void> {

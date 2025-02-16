@@ -3,7 +3,7 @@ import ToolService from "../../../application/services/ToolService";
 import ToolDTO from "../../../application/dtos/ToolDTO";
 import NotFoundError from "../../../error/NotFoundError";
 import ToolEntity from "../../persistence/entities/ToolEntity";
-import Controller from "../interfaces/controller";
+import Controller from "./controller";
 
 export default class ToolController implements Controller {
   constructor(private toolService: ToolService) {}
@@ -11,7 +11,7 @@ export default class ToolController implements Controller {
   public create = async (req: Request, res: Response): Promise<void> => {
     try {
       const { tool }: { tool: ToolDTO } = req.body;
-      await this.toolService.addTool(tool);
+      await this.toolService.create(tool);
       res.status(201).json({ message: "Tool added." });
     } catch (err) {
       res.status(500).json({ message: "Internal server error." });
@@ -22,7 +22,7 @@ export default class ToolController implements Controller {
     const { id } = req.params;
     try {
       const { tool }: { tool: ToolDTO } = req.body;
-      await this.toolService.updateTool(id, tool);
+      await this.toolService.update(id, tool);
       res.status(200).json({ message: "Tool updated." });
     } catch (err) {
       if (err instanceof NotFoundError) {
@@ -36,7 +36,7 @@ export default class ToolController implements Controller {
   public findById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-      const tool: ToolEntity = await this.toolService.findTool(id);
+      const tool: ToolEntity = await this.toolService.findById(id);
       res.status(200).json({ tool });
     } catch (err) {
       if (err instanceof NotFoundError) {
@@ -49,7 +49,7 @@ export default class ToolController implements Controller {
 
   public findAll = async (req: Request, res: Response) => {
     try {
-      const tools: ToolEntity[] = await this.toolService.listAllTools();
+      const tools: ToolEntity[] = await this.toolService.findAll();
       res.status(200).json({ tools });
     } catch (err) {
       res.status(500).json({ message: "Internal server error." });
@@ -59,7 +59,7 @@ export default class ToolController implements Controller {
   public delete = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-      await this.toolService.deleteTool(id);
+      await this.toolService.delete(id);
       res.status(200).json({ message: "Tool deleted." });
     } catch (err) {
       if (err instanceof NotFoundError) {

@@ -1,15 +1,15 @@
 import Tool from "../../domain/models/Tool";
 import ToolDTO from "../dtos/ToolDTO";
-import NotFoundError from "../../error/NotFoundError";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import ToolRepository from "../repositories/ToolRepository";
+import Service from "./Service";
 
-export default class ToolService {
+export default class ToolService implements Service<ToolDTO, ToolEntity> {
   constructor(private toolRepository: ToolRepository) {}
 
-  public addTool = async (toolDTO: ToolDTO): Promise<void> => {
+  public create = async (toolDTO: ToolDTO): Promise<void> => {
     try {
       const tool = new Tool(toolDTO.id, toolDTO.name, toolDTO.status);
       await this.toolRepository.save(tool);
@@ -22,17 +22,10 @@ export default class ToolService {
     }
   };
 
-  public updateTool = async (
-    ToolId: string,
-    ToolDTO: ToolDTO
-  ): Promise<void> => {
+  public update = async (toolId: string, toolDTO: ToolDTO): Promise<void> => {
     try {
-      const foundTool = await this.toolRepository.getById(ToolId);
-      if (!foundTool) {
-        throw new NotFoundError("Could not find tool with id: " + ToolId);
-      }
-      const newTool = new Tool(ToolDTO.id, ToolDTO.name, ToolDTO.status);
-      await this.toolRepository.update(ToolId, newTool);
+      const tool = new Tool(toolDTO.id, toolDTO.name, toolDTO.status);
+      await this.toolRepository.update(toolId, tool);
       return;
     } catch (err) {
       if (err instanceof CustomError) {
@@ -42,16 +35,19 @@ export default class ToolService {
     }
   };
 
-  public deleteTool = async (toolId: string): Promise<void> => {
-    const tool = await this.toolRepository.getById(toolId);
-    if (!tool) {
-      // TODO: error handling
+  public delete = async (toolId: string): Promise<void> => {
+    try {
+      await this.toolRepository.delete(toolId);
+      return;
+    } catch (err) {
+      if (err instanceof CustomError) {
+        throw err;
+      }
+      throw new InternalServerError("Internal server error.");
     }
-    await this.toolRepository.delete(toolId);
-    return;
   };
 
-  public findTool = async (toolId: string): Promise<ToolEntity> => {
+  public findById = async (toolId: string): Promise<ToolEntity> => {
     try {
       const tool: ToolEntity = await this.toolRepository.getById(toolId);
       return tool;
@@ -63,7 +59,7 @@ export default class ToolService {
     }
   };
 
-  public listAllTools = async (): Promise<ToolEntity[]> => {
+  public findAll = async (): Promise<ToolEntity[]> => {
     try {
       const tools: ToolEntity[] = await this.toolRepository.getAll();
       return tools;

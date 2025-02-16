@@ -1,15 +1,13 @@
-import ToolDAO from "../../domain/daos/ToolDAO";
+import DAO from "../../domain/daos/DAO";
 import Tool from "../../domain/models/Tool";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import NotFoundError from "../../error/NotFoundError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
-import GenericRepository from "./GenericRepository";
+import Repository from "./Repository";
 
-export default class ToolRepository
-  implements GenericRepository<Tool, ToolEntity>
-{
-  constructor(private toolDAO: ToolDAO) {}
+export default class ToolRepository implements Repository<Tool, ToolEntity> {
+  constructor(private toolDAO: DAO<Tool, ToolEntity>) {}
 
   public save = async (tool: Tool): Promise<void> => {
     try {

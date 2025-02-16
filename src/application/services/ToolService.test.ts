@@ -3,10 +3,11 @@ import ToolDTO from "../../application/dtos/ToolDTO";
 import NotFoundError from "../../error/NotFoundError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import ToolRepository from "../repositories/ToolRepository";
-import ToolDAO from "../../domain/daos/ToolDAO";
+import Tool from "../../domain/models/Tool";
+import DAO from "../../domain/daos/DAO";
 
 // Mock ToolDAO
-const mockToolDAO: jest.Mocked<ToolDAO> = {
+const mockToolDAO: jest.Mocked<DAO<Tool, ToolEntity>> = {
   save: jest.fn(),
   getById: jest.fn(),
   getAll: jest.fn(),
@@ -28,7 +29,7 @@ describe("ToolService", () => {
   test("should add a new tool", async () => {
     const toolDTO: ToolDTO = { id: "1", name: "Hammer", status: "serviceable" };
 
-    await toolService.addTool(toolDTO);
+    await toolService.create(toolDTO);
 
     expect(mockToolDAO.save).toHaveBeenCalledTimes(1);
     expect(mockToolDAO.save).toHaveBeenCalledWith(
@@ -46,7 +47,7 @@ describe("ToolService", () => {
     );
     mockToolDAO.getById.mockResolvedValue(tool);
 
-    const result = await toolService.findTool("2");
+    const result = await toolService.findById("2");
 
     expect(result).toBe(tool);
     expect(mockToolDAO.getById).toHaveBeenCalledWith("2");
@@ -55,7 +56,7 @@ describe("ToolService", () => {
   test("should throw NotFoundError when tool is not found", async () => {
     mockToolDAO.getById.mockResolvedValue(null);
 
-    await expect(toolService.findTool("99")).rejects.toThrow(NotFoundError);
+    await expect(toolService.findById("99")).rejects.toThrow(NotFoundError);
     expect(mockToolDAO.getById).toHaveBeenCalledWith("99");
   });
 });

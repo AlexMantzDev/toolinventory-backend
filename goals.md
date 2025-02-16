@@ -4,3 +4,8 @@
 - [] check out tool to user
 - [] due date for checked out items
 - [] checked out items reports
+
+for me:
+
+- rxjs?
+- socket.io for notifications?
