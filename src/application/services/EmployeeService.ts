@@ -4,10 +4,10 @@ import InternalServerError from "../../error/InternalServerError";
 import EmployeeEntity from "../../infrastructure/persistence/entities/EmployeeEntity";
 import EmployeeDTO from "../dtos/EmployeeDTO";
 import EmployeeRepository from "../repositories/EmployeeRepository";
-import Service from "./Service";
+import CRUDService from "./Service";
 
 export default class EmployeeService
-  implements Service<EmployeeDTO, EmployeeEntity>
+  implements CRUDService<EmployeeDTO, EmployeeEntity>
 {
   constructor(private employeeRepository: EmployeeRepository) {}
 

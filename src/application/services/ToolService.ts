@@ -4,9 +4,9 @@ import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import ToolRepository from "../repositories/ToolRepository";
-import Service from "./Service";
+import CRUDService from "./Service";
 
-export default class ToolService implements Service<ToolDTO, ToolEntity> {
+export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
   constructor(private toolRepository: ToolRepository) {}
 
   public create = async (toolDTO: ToolDTO): Promise<void> => {

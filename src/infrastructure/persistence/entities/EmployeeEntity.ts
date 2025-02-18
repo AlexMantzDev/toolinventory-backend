@@ -5,7 +5,6 @@ export default class EmployeeEntity {
     private id: string,
     private firstName: string,
     private lastName: string,
-    private tools: Tool[],
     private createdAt: Date,
     private updatedAt: Date
   ) {}
@@ -20,10 +19,6 @@ export default class EmployeeEntity {
 
   public getLastName = (): string => {
     return this.lastName;
-  };
-
-  public getTools = (): Tool[] => {
-    return this.tools;
   };
 
   public getCreatedAt = (): Date => {

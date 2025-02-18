@@ -1,4 +1,4 @@
-export default interface Service<DTO, Entity> {
+export default interface CRUDService<DTO, Entity> {
   create(dto: DTO): Promise<void>;
   update(id: string, dto: DTO): Promise<void>;
   delete(id: string): Promise<void>;

@@ -1,5 +1,5 @@
 import Tool from "../../../domain/models/Tool";
-import ToolModel from "../../sequelize/models/ToolModel";
+import { ToolModel } from "../../sequelize/models";
 import NotFoundError from "../../../error/NotFoundError";
 import InternalServerError from "../../../error/InternalServerError";
 import CustomError from "../../../error/CustomError";
@@ -11,14 +11,11 @@ export default class ToolDAOImplSequelize implements DAO<Tool, ToolEntity> {
 
   async save(tool: Tool): Promise<void> {
     try {
-      const newTool: ToolModel = await ToolModel.create({
+      await ToolModel.create({
         id: tool.getId(),
         name: tool.getName(),
         status: tool.getStatus(),
       });
-      if (!newTool) {
-        throw new CustomError("could not create new tool.", 500);
-      }
       return;
     } catch (err) {
       if (err instanceof CustomError) {
@@ -34,7 +31,7 @@ export default class ToolDAOImplSequelize implements DAO<Tool, ToolEntity> {
       if (!foundTool) {
         return null;
       }
-      const tool = new ToolEntity(
+      const tool: ToolEntity = new ToolEntity(
         foundTool?.id,
         foundTool?.name,
         foundTool?.status,

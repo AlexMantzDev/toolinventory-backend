@@ -29,7 +29,7 @@ export default class Tool {
     return this.status;
   };
 
-  public changeStatus = (newStatus: ToolStatus): void => {
-    this.status = newStatus;
+  public changeStatus = (status: ToolStatus): void => {
+    this.status = status;
   };
 }
