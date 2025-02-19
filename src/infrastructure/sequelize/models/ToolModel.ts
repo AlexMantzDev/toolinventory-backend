@@ -4,7 +4,8 @@ import { ToolStatus } from "../../../domain/models/Tool";
 import sequelize from "..";
 
 class ToolModel extends Model {
-  public id!: string;
+  public id!: number;
+  public code!: string;
   public name!: string;
   public status!: ToolStatus;
   public readonly createdAt!: Date;
@@ -14,8 +15,13 @@ class ToolModel extends Model {
 ToolModel.init(
   {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
+    },
+    code: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     name: {
       type: DataTypes.STRING,

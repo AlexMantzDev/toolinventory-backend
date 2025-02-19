@@ -3,9 +3,9 @@ import ToolService from "../../../application/services/ToolService";
 import ToolDTO from "../../../application/dtos/ToolDTO";
 import NotFoundError from "../../../error/NotFoundError";
 import ToolEntity from "../../persistence/entities/ToolEntity";
-import Controller from "./Controller";
+import CRUDController from "./Controller";
 
-export default class ToolController implements Controller {
+export default class ToolController implements CRUDController {
   constructor(private toolService: ToolService) {}
 
   public create = async (req: Request, res: Response): Promise<void> => {

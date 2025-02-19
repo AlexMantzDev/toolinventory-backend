@@ -1,14 +1,19 @@
 export default class EmployeeEntity {
   constructor(
-    private id: string,
+    private id: number,
+    private code: string,
     private firstName: string,
     private lastName: string,
     private createdAt: Date,
     private updatedAt: Date
   ) {}
 
-  public getId = (): string => {
+  public getId = (): number => {
     return this.id;
+  };
+
+  public getCode = (): string => {
+    return this.code;
   };
 
   public getFirstName = (): string => {

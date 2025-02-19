@@ -1,5 +1,5 @@
 import Employee from "../../domain/models/Employee";
-import Repository from "../../domain/respository/Repository";
+import Repository from "../../domain/respository/CRUDRepository";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import NotFoundError from "../../error/NotFoundError";
@@ -17,12 +17,11 @@ export default class EmployeeService
   public create = async (employeeDTO: EmployeeDTO): Promise<void> => {
     try {
       const employee = new Employee(
-        employeeDTO.id,
+        employeeDTO.code,
         employeeDTO.firstName,
         employeeDTO.lastName
       );
       await this.employeeRepository.save(employee);
-      return;
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;
@@ -37,12 +36,11 @@ export default class EmployeeService
   ): Promise<void> => {
     try {
       const employee = new Employee(
-        employeeDTO.id,
+        employeeDTO.code,
         employeeDTO.firstName,
         employeeDTO.lastName
       );
       await this.employeeRepository.update(employeeId, employee);
-      return;
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;
@@ -54,7 +52,6 @@ export default class EmployeeService
   public delete = async (employeeId: string): Promise<void> => {
     try {
       await this.employeeRepository.delete(employeeId);
-      return;
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;
@@ -83,9 +80,7 @@ export default class EmployeeService
 
   public findAll = async (): Promise<EmployeeEntity[]> => {
     try {
-      const employees: EmployeeEntity[] =
-        await this.employeeRepository.getAll();
-      return employees;
+      return await this.employeeRepository.getAll();
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;

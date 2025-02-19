@@ -1,14 +1,5 @@
-import express, {
-  Application,
-  Handler,
-  NextFunction,
-  Request,
-  RequestHandler,
-  Response,
-  Router,
-} from "express";
+import express, { Application, RequestHandler, Router } from "express";
 import http, { Server } from "node:http";
-import ToolRoutes from "./routes/ToolRoutes";
 
 export default class HttpServer {
   private static instance: HttpServer;

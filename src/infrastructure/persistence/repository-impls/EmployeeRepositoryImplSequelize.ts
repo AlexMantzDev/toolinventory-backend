@@ -3,18 +3,18 @@ import CustomError from "../../../error/CustomError";
 import InternalServerError from "../../../error/InternalServerError";
 import { EmployeeModel } from "../../sequelize/models";
 import EmployeeEntity from "../entities/EmployeeEntity";
-import Repository from "../../../domain/respository/Repository";
 import NotFoundError from "../../../error/NotFoundError";
+import CRUDRepository from "../../../domain/respository/CRUDRepository";
 
 export default class EmployeeRepositoryImplSequelize
-  implements Repository<Employee, EmployeeEntity>
+  implements CRUDRepository<Employee, EmployeeEntity>
 {
   constructor() {}
 
   public save = async (employee: Employee): Promise<void> => {
     try {
       await EmployeeModel.create({
-        id: employee.getId(),
+        code: employee.getCode(),
         firstName: employee.getFirstName(),
         lastName: employee.getLastName(),
       });
@@ -37,6 +37,7 @@ export default class EmployeeRepositoryImplSequelize
       }
       const employee: EmployeeEntity = new EmployeeEntity(
         foundEmployee?.id,
+        foundEmployee?.code,
         foundEmployee?.firstName,
         foundEmployee?.lastName,
         foundEmployee?.createdAt,
@@ -59,6 +60,7 @@ export default class EmployeeRepositoryImplSequelize
       foundEmployees.forEach((e: EmployeeModel) => {
         const employee = new EmployeeEntity(
           e?.id,
+          e?.code,
           e?.firstName,
           e?.lastName,
           e?.createdAt,
@@ -94,6 +96,10 @@ export default class EmployeeRepositoryImplSequelize
 
   public delete = async (id: string): Promise<void> => {
     try {
+      const deletedRow = await EmployeeModel.destroy({ where: { id } });
+      if (deletedRow === 0) {
+        throw new CustomError("Could not delete record.", 500);
+      }
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;

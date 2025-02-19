@@ -2,15 +2,15 @@ import EmployeeDTO from "../../../application/dtos/EmployeeDTO";
 import EmployeeService from "../../../application/services/EmployeeService";
 import NotFoundError from "../../../error/NotFoundError";
 import EmployeeEntity from "../../persistence/entities/EmployeeEntity";
-import Controller from "./Controller";
+import CRUDController from "./Controller";
 import { Request, Response } from "express";
 
-export default class EmployeeController implements Controller {
+export default class EmployeeController implements CRUDController {
   constructor(private employeeService: EmployeeService) {}
 
   public create = async (req: Request, res: Response): Promise<void> => {
+    const { employee }: { employee: EmployeeDTO } = req.body;
     try {
-      const { employee }: { employee: EmployeeDTO } = req.body;
       await this.employeeService.create(employee);
       res.status(201).json({ message: "Employee added." });
     } catch (err) {
@@ -20,8 +20,8 @@ export default class EmployeeController implements Controller {
 
   public update = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
+    const { employee }: { employee: EmployeeDTO } = req.body;
     try {
-      const { employee }: { employee: EmployeeDTO } = req.body;
       await this.employeeService.update(id, employee);
       res.status(200).json({ message: "Employee updated." });
     } catch (err) {

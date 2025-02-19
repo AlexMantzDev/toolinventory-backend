@@ -7,18 +7,18 @@ export type ToolStatus =
   | "inspection due";
 
 export default class Tool {
-  private id: string;
+  private code: string;
   private name: string;
   private status: ToolStatus;
 
-  constructor(id: string, name: string, status: ToolStatus) {
-    this.id = id;
+  constructor(code: string, name: string, status: ToolStatus) {
+    this.code = code;
     this.name = name;
     this.status = status;
   }
 
-  public getId = (): string => {
-    return this.id;
+  public getCode = (): string => {
+    return this.code;
   };
 
   public getName = (): string => {

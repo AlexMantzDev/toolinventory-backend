@@ -4,7 +4,7 @@ import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import CRUDService from "./Service";
-import Repository from "../../domain/respository/Repository";
+import Repository from "../../domain/respository/CRUDRepository";
 import NotFoundError from "../../error/NotFoundError";
 
 export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
@@ -12,9 +12,8 @@ export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
 
   public create = async (toolDTO: ToolDTO): Promise<void> => {
     try {
-      const tool = new Tool(toolDTO.id, toolDTO.name, toolDTO.status);
+      const tool = new Tool(toolDTO.code, toolDTO.name, toolDTO.status);
       await this.toolRepository.save(tool);
-      return;
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;
@@ -25,9 +24,8 @@ export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
 
   public update = async (toolId: string, toolDTO: ToolDTO): Promise<void> => {
     try {
-      const tool = new Tool(toolDTO.id, toolDTO.name, toolDTO.status);
+      const tool = new Tool(toolDTO.code, toolDTO.name, toolDTO.status);
       await this.toolRepository.update(toolId, tool);
-      return;
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;
@@ -39,7 +37,6 @@ export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
   public delete = async (toolId: string): Promise<void> => {
     try {
       await this.toolRepository.delete(toolId);
-      return;
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;
@@ -65,8 +62,7 @@ export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
 
   public findAll = async (): Promise<ToolEntity[]> => {
     try {
-      const tools: ToolEntity[] = await this.toolRepository.getAll();
-      return tools;
+      return await this.toolRepository.getAll();
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;

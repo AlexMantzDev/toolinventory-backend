@@ -2,15 +2,20 @@ import { ToolStatus } from "../../../domain/models/Tool";
 
 export default class ToolEntity {
   constructor(
-    private id: string,
+    private id: number,
+    private code: string,
     private name: string,
     private status: ToolStatus,
     private createdAt: Date,
     private updatedAt: Date
   ) {}
 
-  public getId = (): string => {
+  public getId = (): number => {
     return this.id;
+  };
+
+  public getCode = (): string => {
+    return this.code;
   };
 
   public getName = (): string => {

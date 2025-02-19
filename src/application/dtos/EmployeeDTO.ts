@@ -1,5 +1,5 @@
 export default interface EmployeeDTO {
-  id: string;
+  code: string;
   firstName: string;
   lastName: string;
 }

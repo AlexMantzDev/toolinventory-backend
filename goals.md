@@ -1,11 +1,6 @@
-- [] add to inventory
+- [x] add to inventory
 - [] different user roles (admins, basic)
-- [] create new customers to issue to
-- [] check out tool to user
+- [x] create new customers to issue to
+- [x] check out tool to user
 - [] due date for checked out items
-- [] checked out items reports
-
-for me:
-
-- rxjs?
-- socket.io for notifications?
+- [x] checked out items reports

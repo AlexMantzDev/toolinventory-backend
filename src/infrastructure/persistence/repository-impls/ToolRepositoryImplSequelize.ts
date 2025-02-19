@@ -4,17 +4,17 @@ import NotFoundError from "../../../error/NotFoundError";
 import InternalServerError from "../../../error/InternalServerError";
 import CustomError from "../../../error/CustomError";
 import ToolEntity from "../entities/ToolEntity";
-import Repository from "../../../domain/respository/Repository";
+import CRUDRepository from "../../../domain/respository/CRUDRepository";
 
 export default class ToolRepositoryImplSequelize
-  implements Repository<Tool, ToolEntity>
+  implements CRUDRepository<Tool, ToolEntity>
 {
   constructor() {}
 
   public save = async (tool: Tool): Promise<void> => {
     try {
       await ToolModel.create({
-        id: tool.getId(),
+        code: tool.getCode(),
         name: tool.getName(),
         status: tool.getStatus(),
       });
@@ -35,6 +35,7 @@ export default class ToolRepositoryImplSequelize
       }
       const tool: ToolEntity = new ToolEntity(
         foundTool?.id,
+        foundTool?.code,
         foundTool?.name,
         foundTool?.status,
         foundTool?.createdAt,
@@ -57,6 +58,7 @@ export default class ToolRepositoryImplSequelize
       foundTools.forEach((e: ToolModel) => {
         const tool = new ToolEntity(
           e?.id,
+          e?.code,
           e?.name,
           e?.status,
           e?.createdAt,
@@ -76,6 +78,7 @@ export default class ToolRepositoryImplSequelize
   public update = async (id: string, tool: Tool): Promise<void> => {
     try {
       const [updatedRows] = await ToolModel.update(tool, { where: { id } });
+      //TODO handle case where updating tool => changing code to that of an existing tool's code should fail
       if (updatedRows === 0) {
         throw new NotFoundError("Could not find tool with id: " + id);
       }

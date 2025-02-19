@@ -2,7 +2,8 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "..";
 
 class EmployeeModel extends Model {
-  public id!: string;
+  public id!: number;
+  public code!: string;
   public firstName!: string;
   public lastName!: string;
   public readonly createdAt!: Date;
@@ -12,8 +13,13 @@ class EmployeeModel extends Model {
 EmployeeModel.init(
   {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
+    },
+    code: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     firstName: {
       type: DataTypes.STRING,

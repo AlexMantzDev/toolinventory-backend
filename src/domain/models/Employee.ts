@@ -1,23 +1,23 @@
 export default class Employee {
-  private id: string;
+  private code: string;
   private firstName: string;
   private lastName: string;
 
-  constructor(id: string, firstName: string, lastName: string) {
-    this.id = id;
+  constructor(code: string, firstName: string, lastName: string) {
+    this.code = code;
     this.firstName = firstName;
     this.lastName = lastName;
   }
 
-  getId(): string {
-    return this.id;
-  }
+  public getCode = (): string => {
+    return this.code;
+  };
 
-  getFirstName(): string {
+  public getFirstName = (): string => {
     return this.firstName;
-  }
+  };
 
-  getLastName(): string {
+  public getLastName = (): string => {
     return this.lastName;
-  }
+  };
 }

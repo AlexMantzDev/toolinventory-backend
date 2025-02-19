@@ -4,8 +4,8 @@ import Tool, { ToolStatus } from "./Tool";
 export default class Toolbox extends Tool {
   private compartments: Compartment[] = [];
 
-  public constructor(id: string, name: string, status: ToolStatus) {
-    super(id, name, status);
+  public constructor(code: string, name: string, status: ToolStatus) {
+    super(code, name, status);
   }
 
   public addCompartment(compartmentName: string) {

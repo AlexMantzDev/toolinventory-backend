@@ -7,13 +7,13 @@ export default class User extends Employee {
   private role: UserRoles;
 
   constructor(
-    id: string,
+    code: string,
     firstName: string,
     lastName: string,
     password: string,
     role: UserRoles
   ) {
-    super(id, firstName, lastName);
+    super(code, firstName, lastName);
     this.password = password;
     this.role = role;
   }
