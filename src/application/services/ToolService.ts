@@ -3,11 +3,12 @@ import ToolDTO from "../dtos/ToolDTO";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
-import ToolRepository from "../repositories/ToolRepository";
 import CRUDService from "./Service";
+import Repository from "../../domain/respository/Repository";
+import NotFoundError from "../../error/NotFoundError";
 
 export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
-  constructor(private toolRepository: ToolRepository) {}
+  constructor(private toolRepository: Repository<Tool, ToolEntity>) {}
 
   public create = async (toolDTO: ToolDTO): Promise<void> => {
     try {
@@ -49,7 +50,10 @@ export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
 
   public findById = async (toolId: string): Promise<ToolEntity> => {
     try {
-      const tool: ToolEntity = await this.toolRepository.getById(toolId);
+      const tool: ToolEntity | null = await this.toolRepository.getById(toolId);
+      if (!tool) {
+        throw new NotFoundError("Could not find tool wit id: " + toolId);
+      }
       return tool;
     } catch (err) {
       if (err instanceof CustomError) {

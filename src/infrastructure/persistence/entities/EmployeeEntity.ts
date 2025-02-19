@@ -1,5 +1,3 @@
-import Tool from "../../../domain/models/Tool";
-
 export default class EmployeeEntity {
   constructor(
     private id: string,

@@ -27,7 +27,7 @@ EmployeeModel.init(
   {
     sequelize,
     modelName: "Employee",
-    tableName: "empoyees",
+    tableName: "employees",
     timestamps: true,
   }
 );

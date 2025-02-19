@@ -1,4 +1,4 @@
-export default interface DAO<T, Entity> {
+export default interface Repository<T, Entity> {
   save(t: T): Promise<void>;
   getById(id: string): Promise<Entity | null>;
   getAll(): Promise<Entity[]>;

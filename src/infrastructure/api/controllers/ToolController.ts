@@ -3,7 +3,7 @@ import ToolService from "../../../application/services/ToolService";
 import ToolDTO from "../../../application/dtos/ToolDTO";
 import NotFoundError from "../../../error/NotFoundError";
 import ToolEntity from "../../persistence/entities/ToolEntity";
-import Controller from "./controller";
+import Controller from "./Controller";
 
 export default class ToolController implements Controller {
   constructor(private toolService: ToolService) {}

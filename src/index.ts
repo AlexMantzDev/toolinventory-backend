@@ -1,29 +1,40 @@
 import ToolService from "./application/services/ToolService";
-import ToolController from "./infrastructure/api/controllers/tool.controller";
+import ToolController from "./infrastructure/api/controllers/ToolController";
 import { httpServer } from "./infrastructure/api";
-import ToolRoutes from "./infrastructure/api/routes/tool.routes";
+import ToolRoutes from "./infrastructure/api/routes/ToolRoutes";
 import { json } from "express";
-import ToolRepository from "./application/repositories/ToolRepository";
-import ToolDAOImpl from "./infrastructure/persistence/dao-impls/ToolDAOImplSequelize";
+import ToolRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/ToolRepositoryImplSequelize";
+import EmployeeRoutes from "./infrastructure/api/routes/EmployeeRoutes";
+import EmployeeController from "./infrastructure/api/controllers/EmployeeController";
+import EmployeeService from "./application/services/EmployeeService";
+import EmployeeRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/EmployeeRepositoryImplSequelize";
 
 class Main {
   private constructor() {}
 
   static start = () => {
     new Main();
-    console.log("Creating tool repository...");
-    const toolDAO = new ToolDAOImpl();
-    const toolRepository = new ToolRepository(toolDAO);
+    console.log("Creating tool repository implementation...");
+    const toolRepository = new ToolRepositoryImplSequelize();
     console.log("Creating tool service...");
     const toolService = new ToolService(toolRepository);
     console.log("Creating tool controller...");
     const toolController = new ToolController(toolService);
     console.log("Creating tool routes...");
     const toolRoutes = new ToolRoutes(toolController);
+    console.log("Creating employee repository implementation...");
+    const employeeRepository = new EmployeeRepositoryImplSequelize();
+    console.log("Creating employee service...");
+    const employeeService = new EmployeeService(employeeRepository);
+    console.log("Creating employee controller...");
+    const employeeController = new EmployeeController(employeeService);
+    console.log("Creating employee routes...");
+    const employeeRoutes = new EmployeeRoutes(employeeController);
     console.log("Setting up middleware...");
     httpServer.addMiddleware(json());
     console.log("Assigning routes to Express...");
     httpServer.addRoutes("/api/v1/tools", toolRoutes.router);
+    httpServer.addRoutes("/api/v1/employees", employeeRoutes.router);
     console.log("Starting Express application...");
     httpServer.start(5000);
   };

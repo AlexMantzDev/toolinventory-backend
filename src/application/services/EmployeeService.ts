@@ -1,15 +1,18 @@
 import Employee from "../../domain/models/Employee";
+import Repository from "../../domain/respository/Repository";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
+import NotFoundError from "../../error/NotFoundError";
 import EmployeeEntity from "../../infrastructure/persistence/entities/EmployeeEntity";
 import EmployeeDTO from "../dtos/EmployeeDTO";
-import EmployeeRepository from "../repositories/EmployeeRepository";
 import CRUDService from "./Service";
 
 export default class EmployeeService
   implements CRUDService<EmployeeDTO, EmployeeEntity>
 {
-  constructor(private employeeRepository: EmployeeRepository) {}
+  constructor(
+    private employeeRepository: Repository<Employee, EmployeeEntity>
+  ) {}
 
   public create = async (employeeDTO: EmployeeDTO): Promise<void> => {
     try {
@@ -36,8 +39,7 @@ export default class EmployeeService
       const employee = new Employee(
         employeeDTO.id,
         employeeDTO.firstName,
-        employeeDTO.lastName,
-        employeeDTO.tools
+        employeeDTO.lastName
       );
       await this.employeeRepository.update(employeeId, employee);
       return;
@@ -63,9 +65,13 @@ export default class EmployeeService
 
   public findById = async (employeeId: string): Promise<EmployeeEntity> => {
     try {
-      const employee: EmployeeEntity = await this.employeeRepository.getById(
-        employeeId
-      );
+      const employee: EmployeeEntity | null =
+        await this.employeeRepository.getById(employeeId);
+      if (!employee) {
+        throw new NotFoundError(
+          "Could not find employee with id: " + employeeId
+        );
+      }
       return employee;
     } catch (err) {
       if (err instanceof CustomError) {

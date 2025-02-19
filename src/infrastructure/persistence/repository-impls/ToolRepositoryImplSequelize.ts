@@ -4,12 +4,14 @@ import NotFoundError from "../../../error/NotFoundError";
 import InternalServerError from "../../../error/InternalServerError";
 import CustomError from "../../../error/CustomError";
 import ToolEntity from "../entities/ToolEntity";
-import DAO from "../../../domain/daos/DAO";
+import Repository from "../../../domain/respository/Repository";
 
-export default class ToolDAOImplSequelize implements DAO<Tool, ToolEntity> {
+export default class ToolRepositoryImplSequelize
+  implements Repository<Tool, ToolEntity>
+{
   constructor() {}
 
-  async save(tool: Tool): Promise<void> {
+  public save = async (tool: Tool): Promise<void> => {
     try {
       await ToolModel.create({
         id: tool.getId(),
@@ -23,9 +25,9 @@ export default class ToolDAOImplSequelize implements DAO<Tool, ToolEntity> {
       }
       throw new InternalServerError("Internal server error.");
     }
-  }
+  };
 
-  async getById(id: string): Promise<ToolEntity | null> {
+  public getById = async (id: string): Promise<ToolEntity | null> => {
     try {
       const foundTool: ToolModel | null = await ToolModel.findByPk(id);
       if (!foundTool) {
@@ -45,9 +47,9 @@ export default class ToolDAOImplSequelize implements DAO<Tool, ToolEntity> {
       }
       throw new InternalServerError("Internal server error.");
     }
-  }
+  };
 
-  async getAll(): Promise<ToolEntity[]> {
+  public getAll = async (): Promise<ToolEntity[]> => {
     try {
       const foundTools: ToolModel[] = await ToolModel.findAll();
       const tools: ToolEntity[] = [];
@@ -69,15 +71,14 @@ export default class ToolDAOImplSequelize implements DAO<Tool, ToolEntity> {
       }
       throw new InternalServerError("Internal server error.");
     }
-  }
+  };
 
-  async update(id: string, tool: Tool): Promise<void> {
+  public update = async (id: string, tool: Tool): Promise<void> => {
     try {
-      const foundTool: ToolModel | null = await ToolModel.findByPk(id);
-      if (!foundTool) {
+      const [updatedRows] = await ToolModel.update(tool, { where: { id } });
+      if (updatedRows === 0) {
         throw new NotFoundError("Could not find tool with id: " + id);
       }
-      await ToolModel.update(tool, { where: { id } });
       return;
     } catch (err) {
       if (err instanceof CustomError) {
@@ -85,9 +86,9 @@ export default class ToolDAOImplSequelize implements DAO<Tool, ToolEntity> {
       }
       throw new InternalServerError("Internal server error.");
     }
-  }
+  };
 
-  async delete(id: string): Promise<void> {
+  public delete = async (id: string): Promise<void> => {
     try {
       const deletedCount = await ToolModel.destroy({ where: { id } });
       if (deletedCount === 0) {
@@ -100,5 +101,5 @@ export default class ToolDAOImplSequelize implements DAO<Tool, ToolEntity> {
       }
       throw new InternalServerError("Internal server error.");
     }
-  }
+  };
 }

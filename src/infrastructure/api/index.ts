@@ -8,7 +8,7 @@ import express, {
   Router,
 } from "express";
 import http, { Server } from "node:http";
-import ToolRoutes from "./routes/tool.routes";
+import ToolRoutes from "./routes/ToolRoutes";
 
 export default class HttpServer {
   private static instance: HttpServer;

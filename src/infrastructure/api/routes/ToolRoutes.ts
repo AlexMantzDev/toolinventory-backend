@@ -1,6 +1,6 @@
 import { Router } from "express";
-import Controller from "../controllers/controller";
-import Routes from "./routes";
+import Controller from "../controllers/Controller";
+import Routes from "./Routes";
 
 export default class ToolRoutes implements Routes {
   private readonly _router: Router;
