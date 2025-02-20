@@ -8,11 +8,10 @@ import EmployeeRoutes from "./infrastructure/api/routes/EmployeeRoutes";
 import EmployeeController from "./infrastructure/api/controllers/EmployeeController";
 import EmployeeService from "./application/services/EmployeeService";
 import EmployeeRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/EmployeeRepositoryImplSequelize";
-import LookupRoutes from "./infrastructure/api/routes/LookupRoutes";
 import InventoryController from "./infrastructure/api/controllers/InventoryController";
 import InventoryService from "./application/services/InventoryService";
 import InventoryRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/InventoryRepositoryImplSequelize";
-import CheckoutReturnRoutes from "./infrastructure/api/routes/CheckoutReturnRoutes";
+import InventoryRoutes from "./infrastructure/api/routes/InventoryRoutes";
 
 class Main {
   private constructor() {}
@@ -40,12 +39,10 @@ class Main {
     const inventoryRepository = new InventoryRepositoryImplSequelize();
     const inventoryService = new InventoryService(inventoryRepository);
     const inventoryController = new InventoryController(inventoryService);
-    const lookupRoutes = new LookupRoutes(inventoryController);
-    const checkoutReturnRoutes = new CheckoutReturnRoutes(inventoryController);
+    const inventoryRoutes = new InventoryRoutes(inventoryController);
     httpServer.addMiddleware(json());
     console.log("Assigning routes to Express...");
-    httpServer.addRoutes("/api/v1/lookup", lookupRoutes.router);
-    httpServer.addRoutes("/api/v1/", checkoutReturnRoutes.router);
+    httpServer.addRoutes("/api/v1/inventory", inventoryRoutes.router);
     httpServer.addRoutes("/api/v1/tools", toolRoutes.router);
     httpServer.addRoutes("/api/v1/employees", employeeRoutes.router);
     console.log("Starting Express application...");

@@ -9,20 +9,28 @@ export default class InventoryRoutes {
   }
 
   private initRoutes(): void {
+    this._router.post(
+      "/checkout",
+      this._controller.checkout.bind(this._controller)
+    );
+    this._router.delete(
+      "/return",
+      this._controller.return.bind(this._controller)
+    );
     this._router.get(
-      "/employees/",
+      "/lookup/employees/",
       this._controller.getAllEmployeesWithTools.bind(this._controller)
     );
     this._router.get(
-      "/employees/:employeeId",
+      "/lookup/employees/:employeeId",
       this._controller.getToolsByEmployee.bind(this._controller)
     );
     this._router.get(
-      "/tools",
+      "/lookup/tools",
       this._controller.getAllCheckedOutTools.bind(this._controller)
     );
     this._router.get(
-      "/tools/:toolId",
+      "/lookup/tools/:toolId",
       this._controller.getEmployeeByTool.bind(this._controller)
     );
     this._router.post("/", this._controller.checkout.bind(this._controller));
