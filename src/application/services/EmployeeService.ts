@@ -1,5 +1,5 @@
 import Employee from "../../domain/models/Employee";
-import Repository from "../../domain/respository/CRUDRepository";
+import CRUDRepository from "../../domain/respository/CRUDRepository";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import NotFoundError from "../../error/NotFoundError";
@@ -11,7 +11,7 @@ export default class EmployeeService
   implements CRUDService<EmployeeDTO, EmployeeEntity>
 {
   constructor(
-    private employeeRepository: Repository<Employee, EmployeeEntity>
+    private employeeRepository: CRUDRepository<Employee, EmployeeEntity>
   ) {}
 
   public create = async (employeeDTO: EmployeeDTO): Promise<void> => {
@@ -31,7 +31,7 @@ export default class EmployeeService
   };
 
   public update = async (
-    employeeId: string,
+    employeeId: number,
     employeeDTO: EmployeeDTO
   ): Promise<void> => {
     try {
@@ -49,7 +49,7 @@ export default class EmployeeService
     }
   };
 
-  public delete = async (employeeId: string): Promise<void> => {
+  public delete = async (employeeId: number): Promise<void> => {
     try {
       await this.employeeRepository.delete(employeeId);
     } catch (err) {
@@ -60,7 +60,7 @@ export default class EmployeeService
     }
   };
 
-  public findById = async (employeeId: string): Promise<EmployeeEntity> => {
+  public findById = async (employeeId: number): Promise<EmployeeEntity> => {
     try {
       const employee: EmployeeEntity | null =
         await this.employeeRepository.getById(employeeId);

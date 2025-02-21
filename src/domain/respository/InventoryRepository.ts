@@ -2,8 +2,8 @@ import EmployeeEntity from "../../infrastructure/persistence/entities/EmployeeEn
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 
 export default interface InventoryRepository {
-  assignToolToEmployee(employeeId: string, toolId: string): Promise<void>;
-  removeToolFromEmployee(employeeId: string, toolId: string): Promise<void>;
-  getToolsByEmployee(employeeId: string): Promise<ToolEntity[]>;
-  getEmployeeByTool(toolId: string): Promise<EmployeeEntity | null>;
+  assignToolToEmployee(employeeId: number, toolId: number): Promise<void>;
+  removeToolFromEmployee(employeeId: number, toolId: number): Promise<void>;
+  getToolsByEmployee(employeeId: number): Promise<ToolEntity[]>;
+  getEmployeeByTool(toolId: number): Promise<EmployeeEntity | null>;
 }

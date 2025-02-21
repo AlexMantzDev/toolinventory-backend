@@ -8,8 +8,8 @@ export default class InventoryService {
   constructor(private inventoryRepository: InventoryRepository) {}
 
   public checkoutTool = async (
-    employeeId: string,
-    toolId: string
+    employeeId: number,
+    toolId: number
   ): Promise<void> => {
     try {
       const assignedEmployee = await this.inventoryRepository.getEmployeeByTool(
@@ -28,8 +28,8 @@ export default class InventoryService {
   };
 
   public returnTool = async (
-    employeeId: string,
-    toolId: string
+    employeeId: number,
+    toolId: number
   ): Promise<void> => {
     try {
       await this.inventoryRepository.removeToolFromEmployee(employeeId, toolId);
@@ -42,7 +42,7 @@ export default class InventoryService {
   };
 
   public getToolsByEmployee = async (
-    employeeId: string
+    employeeId: number
   ): Promise<ToolEntity[]> => {
     try {
       return await this.inventoryRepository.getToolsByEmployee(employeeId);
@@ -55,7 +55,7 @@ export default class InventoryService {
   };
 
   public getEmployeeByTool = async (
-    toolId: string
+    toolId: number
   ): Promise<EmployeeEntity | null> => {
     try {
       return await this.inventoryRepository.getEmployeeByTool(toolId);

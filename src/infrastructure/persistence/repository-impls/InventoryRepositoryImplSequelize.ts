@@ -11,21 +11,21 @@ export default class InventoryRepositoryImplSequelize
   implements InventoryRepository
 {
   public assignToolToEmployee = async (
-    employeeId: string,
-    toolId: string
+    employeeId: number,
+    toolId: number
   ): Promise<void> => {
     await EmployeesToolsModel.create({ employeeId, toolId });
   };
 
   public removeToolFromEmployee = async (
-    employeeId: string,
-    toolId: string
+    employeeId: number,
+    toolId: number
   ): Promise<void> => {
     await EmployeesToolsModel.destroy({ where: { employeeId, toolId } });
   };
 
   public getToolsByEmployee = async (
-    employeeId: string
+    employeeId: number
   ): Promise<ToolEntity[]> => {
     const foundTools: ToolModel[] = await ToolModel.findAll({
       include: [
@@ -53,7 +53,7 @@ export default class InventoryRepositoryImplSequelize
   };
 
   public getEmployeeByTool = async (
-    toolId: string
+    toolId: number
   ): Promise<EmployeeEntity | null> => {
     const record = await EmployeeModel.findOne({
       include: [

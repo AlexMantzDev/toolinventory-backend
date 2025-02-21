@@ -11,15 +11,18 @@ export default class InventoryController {
     const { employeeId, toolId }: { employeeId: string; toolId: string } =
       req.body;
     try {
-      await this.inventoryService.checkoutTool(employeeId, toolId);
-      res
-        .status(200)
-        .send(`Tool ${toolId} checked out to employee ${employeeId}.`);
+      await this.inventoryService.checkoutTool(
+        Number(employeeId),
+        Number(toolId)
+      );
+      res.status(200).json({
+        message: `Tool ${toolId} checked out to employee ${employeeId}.`,
+      });
     } catch (err) {
       if (err instanceof CustomError) {
-        res.status(err.statusCode).send({ message: err.message });
+        res.status(err.statusCode).json({ message: err.message });
       } else {
-        res.status(500).send({ message: "Internal server error." });
+        res.status(500).json({ message: "Internal server error." });
       }
     }
   };
@@ -28,15 +31,18 @@ export default class InventoryController {
     const { employeeId, toolId }: { employeeId: string; toolId: string } =
       req.body;
     try {
-      await this.inventoryService.returnTool(employeeId, toolId);
-      res
-        .status(200)
-        .send(`Tool ${toolId} returned from employee ${employeeId}.`);
+      await this.inventoryService.returnTool(
+        Number(employeeId),
+        Number(toolId)
+      );
+      res.status(200).json({
+        message: `Tool ${toolId} returned from employee ${employeeId}.`,
+      });
     } catch (err) {
       if (err instanceof CustomError) {
-        res.status(err.statusCode).send({ message: err.message });
+        res.status(err.statusCode).json({ message: err.message });
       } else {
-        res.status(500).send({ message: "Internal server error." });
+        res.status(500).json({ message: "Internal server error." });
       }
     }
   };
@@ -48,8 +54,8 @@ export default class InventoryController {
     const { employeeId } = req.params;
     try {
       const tools: ToolEntity[] =
-        await this.inventoryService.getToolsByEmployee(employeeId);
-      res.status(200).send({ tools });
+        await this.inventoryService.getToolsByEmployee(Number(employeeId));
+      res.status(200).json({ tools });
     } catch (err) {
       console.log(err);
     }
@@ -62,8 +68,8 @@ export default class InventoryController {
     const { toolId } = req.params;
     try {
       const employee: EmployeeEntity | null =
-        await this.inventoryService.getEmployeeByTool(toolId);
-      res.status(200).send({ employee });
+        await this.inventoryService.getEmployeeByTool(Number(toolId));
+      res.status(200).json({ employee });
     } catch (err) {
       console.log(err);
     }
@@ -76,9 +82,9 @@ export default class InventoryController {
       if (!tools) {
         res
           .status(404)
-          .send({ message: "Could not find any tools checked out." });
+          .json({ message: "Could not find any tools checked out." });
       }
-      res.status(200).send({ tools });
+      res.status(200).json({ tools });
     } catch (err) {
       console.log(err);
     }
@@ -91,9 +97,9 @@ export default class InventoryController {
       if (!employees) {
         res
           .status(404)
-          .send({ message: "Could not find any employees with tools issued." });
+          .json({ message: "Could not find any employees with tools issued." });
       }
-      res.status(200).send({ employees });
+      res.status(200).json({ employees });
     } catch (err) {
       console.log(err);
     }

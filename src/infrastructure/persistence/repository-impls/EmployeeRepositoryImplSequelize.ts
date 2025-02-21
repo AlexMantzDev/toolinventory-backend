@@ -18,7 +18,6 @@ export default class EmployeeRepositoryImplSequelize
         firstName: employee.getFirstName(),
         lastName: employee.getLastName(),
       });
-      return;
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;
@@ -27,7 +26,7 @@ export default class EmployeeRepositoryImplSequelize
     }
   };
 
-  public getById = async (id: string): Promise<EmployeeEntity | null> => {
+  public getById = async (id: number): Promise<EmployeeEntity | null> => {
     try {
       const foundEmployee: EmployeeModel | null = await EmployeeModel.findByPk(
         id
@@ -77,13 +76,13 @@ export default class EmployeeRepositoryImplSequelize
     }
   };
 
-  public update = async (id: string, employee: Employee): Promise<void> => {
+  public update = async (id: number, employee: Employee): Promise<void> => {
     try {
       const [updatedRows] = await EmployeeModel.update(employee, {
         where: { id },
       });
       if (updatedRows === 0) {
-        throw new NotFoundError("Could not find employee with id: " + id);
+        throw new CustomError("Update operation did not complete.", 500);
       }
       return;
     } catch (err) {
@@ -94,11 +93,11 @@ export default class EmployeeRepositoryImplSequelize
     }
   };
 
-  public delete = async (id: string): Promise<void> => {
+  public delete = async (id: number): Promise<void> => {
     try {
-      const deletedRow = await EmployeeModel.destroy({ where: { id } });
-      if (deletedRow === 0) {
-        throw new CustomError("Could not delete record.", 500);
+      const rowCount = await EmployeeModel.destroy({ where: { id } });
+      if (rowCount === 0) {
+        throw new CustomError("Delete operation did not complete.", 500);
       }
     } catch (err) {
       if (err instanceof CustomError) {

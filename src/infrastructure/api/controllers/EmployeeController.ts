@@ -22,7 +22,7 @@ export default class EmployeeController implements CRUDController {
     const { id } = req.params;
     const { employee }: { employee: EmployeeDTO } = req.body;
     try {
-      await this.employeeService.update(id, employee);
+      await this.employeeService.update(Number(id), employee);
       res.status(200).json({ message: "Employee updated." });
     } catch (err) {
       if (err instanceof NotFoundError) {
@@ -36,7 +36,9 @@ export default class EmployeeController implements CRUDController {
   public findById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-      const employee: EmployeeEntity = await this.employeeService.findById(id);
+      const employee: EmployeeEntity = await this.employeeService.findById(
+        Number(id)
+      );
       res.status(200).json({ employee });
     } catch (err) {
       if (err instanceof NotFoundError) {
@@ -61,7 +63,7 @@ export default class EmployeeController implements CRUDController {
   public delete = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-      await this.employeeService.delete(id);
+      await this.employeeService.delete(Number(id));
       res.status(200).json({ message: "Employee deleted." });
     } catch (err) {
       if (err instanceof NotFoundError) {

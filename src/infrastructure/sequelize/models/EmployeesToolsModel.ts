@@ -2,14 +2,14 @@ import { DataTypes, Model } from "sequelize";
 import sequelize from "..";
 
 class EmployeeToolsModel extends Model {
-  public employeeId!: string;
-  public toolId!: string;
+  public employeeId!: number;
+  public toolId!: number;
 }
 
 EmployeeToolsModel.init(
   {
     employeeId: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "employees",
@@ -18,7 +18,7 @@ EmployeeToolsModel.init(
       onDelete: "CASCADE",
     },
     toolId: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "tools",

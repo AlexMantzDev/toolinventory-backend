@@ -4,11 +4,11 @@ import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import CRUDService from "./Service";
-import Repository from "../../domain/respository/CRUDRepository";
+import CRUDRepository from "../../domain/respository/CRUDRepository";
 import NotFoundError from "../../error/NotFoundError";
 
 export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
-  constructor(private toolRepository: Repository<Tool, ToolEntity>) {}
+  constructor(private toolRepository: CRUDRepository<Tool, ToolEntity>) {}
 
   public create = async (toolDTO: ToolDTO): Promise<void> => {
     try {
@@ -22,7 +22,7 @@ export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
     }
   };
 
-  public update = async (toolId: string, toolDTO: ToolDTO): Promise<void> => {
+  public update = async (toolId: number, toolDTO: ToolDTO): Promise<void> => {
     try {
       const tool = new Tool(toolDTO.code, toolDTO.name, toolDTO.status);
       await this.toolRepository.update(toolId, tool);
@@ -34,7 +34,7 @@ export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
     }
   };
 
-  public delete = async (toolId: string): Promise<void> => {
+  public delete = async (toolId: number): Promise<void> => {
     try {
       await this.toolRepository.delete(toolId);
     } catch (err) {
@@ -45,7 +45,7 @@ export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
     }
   };
 
-  public findById = async (toolId: string): Promise<ToolEntity> => {
+  public findById = async (toolId: number): Promise<ToolEntity> => {
     try {
       const tool: ToolEntity | null = await this.toolRepository.getById(toolId);
       if (!tool) {

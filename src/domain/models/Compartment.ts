@@ -24,10 +24,10 @@ export default class Compartment {
     this.tools.push(tool);
   }
 
-  public removeTool(toolId: string) {
-    const tool = this.tools.find((e) => e.getId() === toolId);
-    if (!tool) return;
-    const toolIndex = this.tools.indexOf(tool);
-    this.tools.splice(toolIndex, 1);
-  }
+  // public removeTool(toolId: string) {
+  //   const tool: = this.tools.find((e) => e.getId() === toolId);
+  //   if (!tool) return;
+  //   const toolIndex = this.tools.indexOf(tool);
+  //   this.tools.splice(toolIndex, 1);
+  // }
 }

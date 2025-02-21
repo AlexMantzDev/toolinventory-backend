@@ -12,6 +12,13 @@ import InventoryController from "./infrastructure/api/controllers/InventoryContr
 import InventoryService from "./application/services/InventoryService";
 import InventoryRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/InventoryRepositoryImplSequelize";
 import InventoryRoutes from "./infrastructure/api/routes/InventoryRoutes";
+import AuthRoutes from "./infrastructure/api/routes/AuthRoutes";
+import AuthController from "./infrastructure/api/controllers/AuthController";
+import AuthService from "./application/services/AuthService";
+import UserRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/UserRepositoryImplSequelize";
+import RefreshTokenRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/RefreshTokenRepositoryImplSequelize";
+import { TokenService } from "./application/services/TokenService";
+import cookieParser from "cookie-parser";
 
 class Main {
   private constructor() {}
@@ -40,8 +47,16 @@ class Main {
     const inventoryService = new InventoryService(inventoryRepository);
     const inventoryController = new InventoryController(inventoryService);
     const inventoryRoutes = new InventoryRoutes(inventoryController);
+    const userRepository = new UserRepositoryImplSequelize();
+    const refreshTokenRepository = new RefreshTokenRepositoryImplSequelize();
+    const tokenService = new TokenService(refreshTokenRepository);
+    const authService = new AuthService(userRepository, refreshTokenRepository);
+    const authController = new AuthController(authService, tokenService);
+    const authRoutes = new AuthRoutes(authController);
+    httpServer.addMiddleware(cookieParser());
     httpServer.addMiddleware(json());
     console.log("Assigning routes to Express...");
+    httpServer.addRoutes("/api/v1/auth", authRoutes.router);
     httpServer.addRoutes("/api/v1/inventory", inventoryRoutes.router);
     httpServer.addRoutes("/api/v1/tools", toolRoutes.router);
     httpServer.addRoutes("/api/v1/employees", employeeRoutes.router);

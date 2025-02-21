@@ -22,7 +22,7 @@ export default class ToolController implements CRUDController {
     const { id } = req.params;
     try {
       const { tool }: { tool: ToolDTO } = req.body;
-      await this.toolService.update(id, tool);
+      await this.toolService.update(Number(id), tool);
       res.status(200).json({ message: "Tool updated." });
     } catch (err) {
       if (err instanceof NotFoundError) {
@@ -36,7 +36,7 @@ export default class ToolController implements CRUDController {
   public findById = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-      const tool: ToolEntity = await this.toolService.findById(id);
+      const tool: ToolEntity = await this.toolService.findById(Number(id));
       res.status(200).json({ tool });
     } catch (err) {
       if (err instanceof NotFoundError) {
@@ -59,7 +59,7 @@ export default class ToolController implements CRUDController {
   public delete = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-      await this.toolService.delete(id);
+      await this.toolService.delete(Number(id));
       res.status(200).json({ message: "Tool deleted." });
     } catch (err) {
       if (err instanceof NotFoundError) {

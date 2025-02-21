@@ -1,7 +1,7 @@
 export default interface CRUDRepository<T, Entity> {
   save(t: T): Promise<void>;
-  getById(id: string): Promise<Entity | null>;
+  getById(id: number): Promise<Entity | null>;
   getAll(): Promise<Entity[]>;
-  update(id: string, t: T): Promise<void>;
-  delete(id: string): Promise<void>;
+  update(id: number, t: T): Promise<void>;
+  delete(id: number): Promise<void>;
 }

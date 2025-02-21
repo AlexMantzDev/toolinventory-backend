@@ -1,22 +1,21 @@
-import Employee from "./Employee";
+export type UserRoles = "admin" | "manager" | "associate";
 
-export type UserRoles = "Admin" | "Manager" | "User";
-
-export default class User extends Employee {
+export default class User {
   private password: string;
+  private email: string;
   private role: UserRoles;
+  private verifiedAt: Date | null;
 
-  constructor(
-    code: string,
-    firstName: string,
-    lastName: string,
-    password: string,
-    role: UserRoles
-  ) {
-    super(code, firstName, lastName);
+  constructor(email: string, password: string) {
+    this.email = email;
     this.password = password;
-    this.role = role;
+    this.role = "associate";
+    this.verifiedAt = null;
   }
+
+  getEmail = (): string => {
+    return this.email;
+  };
 
   getPassword = (): string => {
     return this.password;
@@ -26,11 +25,11 @@ export default class User extends Employee {
     return this.role;
   };
 
-  setPassword = (password: string): void => {
-    this.password = password;
+  getVerifiedAt = (): Date | null => {
+    return this.verifiedAt;
   };
 
-  setRole = (role: UserRoles): void => {
-    this.role = role;
+  setVerifiedAt = (): void => {
+    this.verifiedAt = new Date(Date.now());
   };
 }
