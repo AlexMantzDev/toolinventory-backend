@@ -5,6 +5,7 @@ import RefreshTokenService from "../../../application/services/RefreshTokenServi
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import RefreshTokenEntity from "../../persistence/entities/RefreshTokenEntity";
 import AccessTokenService from "../../../application/services/AccessTokenService";
+import bcrypt from "bcrypt";
 
 const REFRESH_SECRET: Secret = process.env.REFRESH_SECRET!;
 
@@ -136,33 +137,39 @@ export default class AuthController {
         res.status(401).json({ message: "Invalid token." });
         return;
       }
-      const newRefreshToken =
-        await this.refreshTokenService.issueNewRefreshToken(userId);
-      if (!newRefreshToken) {
-        res.status(500).json({ message: "Internal server error." });
-        return;
+      const storedRefreshToken = foundRefreshTokenEntity.getToken();
+      const matches = await bcrypt.compare(refreshToken, storedRefreshToken);
+      if (matches) {
+        const newRefreshToken =
+          await this.refreshTokenService.issueNewRefreshToken(userId);
+        if (!newRefreshToken) {
+          res.status(500).json({ message: "Internal server error." });
+          return;
+        }
+        const newAccessToken: string =
+          await this.accessTokenService.createAccessTokenStringFromRefreshTokenString(
+            newRefreshToken
+          );
+        if (!newAccessToken) {
+          res.status(500).json({ message: "Internal server error." });
+          return;
+        }
+        res.cookie("refreshToken", newRefreshToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+          maxAge: 24 * 60 * 60 * 1000, //24h
+        });
+        res.cookie("accessToken", newAccessToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "strict",
+          maxAge: 60 * 60 * 1000, //1h
+        });
+        res.status(200).json({ message: "Access token refreshed." });
+      } else {
+        res.status(403).json({ message: "Invalid token." });
       }
-      const newAccessToken: string =
-        await this.accessTokenService.createAccessTokenStringFromRefreshTokenString(
-          newRefreshToken
-        );
-      if (!newAccessToken) {
-        res.status(500).json({ message: "Internal server error." });
-        return;
-      }
-      res.cookie("refreshToken", newRefreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 24 * 60 * 60 * 1000, //24h
-      });
-      res.cookie("accessToken", newAccessToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        maxAge: 60 * 60 * 1000, //1h
-      });
-      res.status(200).json({ message: "Access token refreshed." });
     } catch (err) {
       if (err instanceof CustomError) {
         res.status(err.statusCode).json({ message: err.message });
