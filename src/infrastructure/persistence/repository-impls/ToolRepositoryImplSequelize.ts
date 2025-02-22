@@ -4,11 +4,9 @@ import NotFoundError from "../../../error/NotFoundError";
 import InternalServerError from "../../../error/InternalServerError";
 import CustomError from "../../../error/CustomError";
 import ToolEntity from "../entities/ToolEntity";
-import CRUDRepository from "../../../domain/respository/CRUDRepository";
+import ToolRepository from "../../../domain/respository/ToolRepository";
 
-export default class ToolRepositoryImplSequelize
-  implements CRUDRepository<Tool, ToolEntity>
-{
+export default class ToolRepositoryImplSequelize implements ToolRepository {
   constructor() {}
 
   public save = async (tool: Tool): Promise<void> => {

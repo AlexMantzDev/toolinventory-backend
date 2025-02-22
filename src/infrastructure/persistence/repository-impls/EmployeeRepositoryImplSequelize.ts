@@ -1,13 +1,12 @@
 import Employee from "../../../domain/models/Employee";
+import EmployeeRepository from "../../../domain/respository/EmployeeRepository";
 import CustomError from "../../../error/CustomError";
 import InternalServerError from "../../../error/InternalServerError";
 import { EmployeeModel } from "../../sequelize/models";
 import EmployeeEntity from "../entities/EmployeeEntity";
-import NotFoundError from "../../../error/NotFoundError";
-import CRUDRepository from "../../../domain/respository/CRUDRepository";
 
 export default class EmployeeRepositoryImplSequelize
-  implements CRUDRepository<Employee, EmployeeEntity>
+  implements EmployeeRepository
 {
   constructor() {}
 

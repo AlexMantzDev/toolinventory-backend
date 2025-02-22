@@ -1,18 +1,13 @@
 import Employee from "../../domain/models/Employee";
-import CRUDRepository from "../../domain/respository/CRUDRepository";
+import EmployeeRepository from "../../domain/respository/EmployeeRepository";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import NotFoundError from "../../error/NotFoundError";
 import EmployeeEntity from "../../infrastructure/persistence/entities/EmployeeEntity";
 import EmployeeDTO from "../dtos/EmployeeDTO";
-import CRUDService from "./Service";
 
-export default class EmployeeService
-  implements CRUDService<EmployeeDTO, EmployeeEntity>
-{
-  constructor(
-    private employeeRepository: CRUDRepository<Employee, EmployeeEntity>
-  ) {}
+export default class EmployeeService {
+  constructor(private employeeRepository: EmployeeRepository) {}
 
   public create = async (employeeDTO: EmployeeDTO): Promise<void> => {
     try {

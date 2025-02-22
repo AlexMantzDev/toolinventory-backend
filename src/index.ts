@@ -17,8 +17,9 @@ import AuthController from "./infrastructure/api/controllers/AuthController";
 import AuthService from "./application/services/AuthService";
 import UserRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/UserRepositoryImplSequelize";
 import RefreshTokenRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/RefreshTokenRepositoryImplSequelize";
-import { TokenService } from "./application/services/TokenService";
+import RefreshTokenService from "./application/services/RefreshTokenService";
 import cookieParser from "cookie-parser";
+import AccessTokenService from "./application/services/AccessTokenService";
 
 class Main {
   private constructor() {}
@@ -49,9 +50,18 @@ class Main {
     const inventoryRoutes = new InventoryRoutes(inventoryController);
     const userRepository = new UserRepositoryImplSequelize();
     const refreshTokenRepository = new RefreshTokenRepositoryImplSequelize();
-    const tokenService = new TokenService(refreshTokenRepository);
-    const authService = new AuthService(userRepository, refreshTokenRepository);
-    const authController = new AuthController(authService, tokenService);
+    const refreshTokenService = new RefreshTokenService(refreshTokenRepository);
+    const accessTokenService = new AccessTokenService(userRepository);
+    const authService = new AuthService(
+      userRepository,
+      refreshTokenService,
+      accessTokenService
+    );
+    const authController = new AuthController(
+      authService,
+      refreshTokenService,
+      accessTokenService
+    );
     const authRoutes = new AuthRoutes(authController);
     httpServer.addMiddleware(cookieParser());
     httpServer.addMiddleware(json());

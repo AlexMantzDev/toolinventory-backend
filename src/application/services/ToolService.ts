@@ -3,12 +3,11 @@ import ToolDTO from "../dtos/ToolDTO";
 import CustomError from "../../error/CustomError";
 import InternalServerError from "../../error/InternalServerError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
-import CRUDService from "./Service";
-import CRUDRepository from "../../domain/respository/CRUDRepository";
 import NotFoundError from "../../error/NotFoundError";
+import ToolRepository from "../../domain/respository/ToolRepository";
 
-export default class ToolService implements CRUDService<ToolDTO, ToolEntity> {
-  constructor(private toolRepository: CRUDRepository<Tool, ToolEntity>) {}
+export default class ToolService {
+  constructor(private toolRepository: ToolRepository) {}
 
   public create = async (toolDTO: ToolDTO): Promise<void> => {
     try {

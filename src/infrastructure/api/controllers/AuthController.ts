@@ -1,22 +1,18 @@
 import { Request, Response } from "express";
 import AuthService from "../../../application/services/AuthService";
 import CustomError from "../../../error/CustomError";
-import { TokenService } from "../../../application/services/TokenService";
+import RefreshTokenService from "../../../application/services/RefreshTokenService";
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
+import RefreshTokenEntity from "../../persistence/entities/RefreshTokenEntity";
+import AccessTokenService from "../../../application/services/AccessTokenService";
 
 const REFRESH_SECRET: Secret = process.env.REFRESH_SECRET!;
-const ACCESS_SECRET: Secret = process.env.ACCESS_SECRET!;
-const VERIFY_SECRET: Secret = process.env.VERIFY_SECRET!;
-
-interface Payload extends JwtPayload {
-  sub: string;
-  email: string;
-}
 
 export default class AuthController {
   constructor(
     private authService: AuthService,
-    private tokenService: TokenService
+    private refreshTokenService: RefreshTokenService,
+    private accessTokenService: AccessTokenService
   ) {}
 
   public login = async (req: Request, res: Response): Promise<void> => {
@@ -66,9 +62,9 @@ export default class AuthController {
   };
 
   public logout = async (req: Request, res: Response): Promise<void> => {
-    const refreshToken = req.cookies.refreshToken;
+    const userId = req.user?.sub;
     try {
-      this.authService.logout(refreshToken);
+      await this.authService.logout(userId);
       res.clearCookie("accessToken");
       res.clearCookie("refreshToken");
       res.status(200).json({ message: "Logged out successfully." });
@@ -83,7 +79,7 @@ export default class AuthController {
 
   public update = async (req: Request, res: Response): Promise<void> => {
     const { user } = req.body;
-    const userId = req.user?.id;
+    const userId = req.user?.sub;
     try {
       await this.authService.update(userId, user);
       res.status(200).json({ message: "User has been updated." });
@@ -118,28 +114,48 @@ export default class AuthController {
     const refreshToken = req.cookies.refreshToken;
     try {
       if (!refreshToken) {
-        res.status(400).json({ error: "Missing refresh token." });
+        res.status(400).json({ message: "Missing refresh token." });
         return;
       }
-      const decoded = jwt.verify(refreshToken, REFRESH_SECRET) as Payload;
-      const stored = await this.tokenService.findByToken(refreshToken);
-      if (!stored) {
-        res.status(401).json({ error: "Refresh token is invalid." });
+      const decodedRefreshToken: JwtPayload = jwt.verify(
+        refreshToken,
+        REFRESH_SECRET
+      ) as JwtPayload;
+      const userId = Number(decodedRefreshToken.sub);
+      if (!userId || userId === undefined) {
+        res.status(400).json({ message: "Refresh token is invalid." });
         return;
       }
-      if (typeof decoded === "string") {
-        res.status(401).json({ error: "Invalid token type." });
+      const foundRefreshTokenEntity: RefreshTokenEntity =
+        await this.refreshTokenService.findEntryByUserId(userId);
+      if (!foundRefreshTokenEntity) {
+        res.status(401).json({ message: "Refresh token is invalid." });
+        return;
       }
-      const newAccessToken = jwt.sign(
-        {
-          sub: decoded.sub,
-          email: decoded.email,
-        },
-        ACCESS_SECRET,
-        {
-          expiresIn: "1h",
-        }
-      );
+      if (typeof decodedRefreshToken === "string") {
+        res.status(401).json({ message: "Invalid token." });
+        return;
+      }
+      const newRefreshToken =
+        await this.refreshTokenService.issueNewRefreshToken(userId);
+      if (!newRefreshToken) {
+        res.status(500).json({ message: "Internal server error." });
+        return;
+      }
+      const newAccessToken: string =
+        await this.accessTokenService.createAccessTokenStringFromRefreshTokenString(
+          newRefreshToken
+        );
+      if (!newAccessToken) {
+        res.status(500).json({ message: "Internal server error." });
+        return;
+      }
+      res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000, //24h
+      });
       res.cookie("accessToken", newAccessToken, {
         httpOnly: true,
         secure: true,

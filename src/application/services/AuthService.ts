@@ -4,18 +4,14 @@ import UserDTO from "../dtos/UserDTO";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import UserRepositoryImplSequelize from "../../infrastructure/persistence/repository-impls/UserRepositoryImplSequelize";
-import RefreshTokenRepositoryImplSequelize from "../../infrastructure/persistence/repository-impls/RefreshTokenRepositoryImplSequelize";
-import RefreshToken from "../../domain/models/RefreshToken";
 import InternalServerError from "../../error/InternalServerError";
-import UserModel from "../../infrastructure/sequelize/models/UserModel";
 import NotFoundError from "../../error/NotFoundError";
 import UserEntity from "../../infrastructure/persistence/entities/UserEntity";
 import NodeMailerInstance from "../../infrastructure/email/NodeMailer";
+import AccessTokenService from "./AccessTokenService";
+import RefreshTokenService from "./RefreshTokenService";
 
-const ACCESS_SECRET = process.env.ACCESS_SECRET!;
-const REFRESH_SECRET = process.env.REFRESH_SECRET!;
 const VERIFY_SECRET = process.env.VERIFY_SECRET!;
-const NODE_ENV = process.env.NODE_ENV!;
 const PORT = process.env.PORT || 5000;
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 const EMAIL_USER = process.env.EMAIL_USER!;
@@ -23,7 +19,8 @@ const EMAIL_USER = process.env.EMAIL_USER!;
 export default class AuthService {
   constructor(
     private userRepository: UserRepositoryImplSequelize,
-    private refreshTokenRepository: RefreshTokenRepositoryImplSequelize
+    private refreshTokenService: RefreshTokenService,
+    private accessTokenService: AccessTokenService
   ) {}
 
   public login = async (
@@ -31,38 +28,21 @@ export default class AuthService {
     password: string
   ): Promise<{ accessToken: string; refreshToken: string }> => {
     try {
-      const userEntity = await this.userRepository.getByEmail(email);
+      const userEntity: UserEntity | null =
+        await this.userRepository.getByEmail(email);
       if (!userEntity) {
         throw new CustomError("Invalid email or password.", 403);
       }
-      if (NODE_ENV === "prod") {
-        const match = await bcrypt.compare(password, userEntity.getPassword());
-        if (!match) {
-          throw new CustomError("Invalid email or password.", 403);
-        }
+      const match = await bcrypt.compare(password, userEntity.getPassword());
+      if (!match) {
+        throw new CustomError("Invalid email or password.", 403);
       }
-      const accessTokenString = jwt.sign(
-        {
-          id: userEntity.getId(),
-          email: userEntity.getEmail(),
-        },
-        ACCESS_SECRET,
-        { expiresIn: "1h" }
-      );
-      const refreshTokenString = jwt.sign(
-        {
-          id: userEntity.getId(),
-          email: userEntity.getEmail(),
-        },
-        REFRESH_SECRET,
-        { expiresIn: "7d" }
-      );
-      const refreshToken = new RefreshToken(
-        userEntity.getId(),
-        refreshTokenString,
-        new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-      );
-      await this.refreshTokenRepository.save(refreshToken);
+      const accessTokenString: string =
+        await this.accessTokenService.createAccessTokenStringFromUserEmail(
+          userEntity.getEmail()
+        );
+      const refreshTokenString: string =
+        await this.refreshTokenService.issueNewRefreshToken(userEntity.getId());
       return {
         accessToken: accessTokenString,
         refreshToken: refreshTokenString,
@@ -82,12 +62,16 @@ export default class AuthService {
         throw new CustomError("User with this email exists already.", 402);
       }
       const email = userDTO.email;
-      const verifyToken: string = jwt.sign({ email }, VERIFY_SECRET, {
-        expiresIn: "24h",
+      const verifyTokenString: string = jwt.sign({ email }, VERIFY_SECRET, {
+        expiresIn: "1h",
       });
-      const verifyLink = `${BASE_URL}/api/v1/auth/verify?token=${verifyToken}`;
-      const saltRounds = 10;
-      const passwordHash = await bcrypt.hash(userDTO.password, saltRounds);
+      //save verify token string to database
+      const verifyLink: string = `${BASE_URL}/api/v1/auth/verify?token=${verifyTokenString}`;
+      const saltRounds: number = 10;
+      const passwordHash: string = await bcrypt.hash(
+        userDTO.password,
+        saltRounds
+      );
       const user = new User(userDTO.email, passwordHash);
       const mailer = await NodeMailerInstance.getInstance();
       mailer.send(EMAIL_USER, verifyLink);
@@ -100,9 +84,9 @@ export default class AuthService {
     }
   };
 
-  public logout = async (token: string): Promise<void> => {
+  public logout = async (userId: number): Promise<void> => {
     try {
-      this.refreshTokenRepository.delete(token);
+      this.refreshTokenService.deleteRefreshTokenEntry(userId);
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;
@@ -125,7 +109,10 @@ export default class AuthService {
 
   public verify = async (token: string): Promise<void> => {
     try {
-      const decoded = jwt.verify(token.toString(), VERIFY_SECRET) as JwtPayload;
+      const decoded: JwtPayload = jwt.verify(
+        token,
+        VERIFY_SECRET
+      ) as JwtPayload;
       const user: UserEntity | null = await this.userRepository.getByEmail(
         decoded.email
       );

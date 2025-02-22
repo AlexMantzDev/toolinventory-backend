@@ -14,6 +14,7 @@ export default class AuthRoutes implements Routes {
     this._router.post("/login", this._controller.login.bind(this._controller));
     this._router.post(
       "/logout",
+      authenticate,
       this._controller.logout.bind(this._controller)
     );
     this._router.post(

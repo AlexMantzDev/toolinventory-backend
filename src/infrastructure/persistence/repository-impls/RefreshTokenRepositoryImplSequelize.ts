@@ -24,16 +24,18 @@ export default class RefreshTokenRepositoryImplSequelize
     }
   };
 
-  public getByTokenString = async (
-    token: string
+  public getRefreshTokenByUserId = async (
+    userId: number
   ): Promise<RefreshTokenEntity | null> => {
     try {
       const foundRefreshToken: RefreshTokenModel | null =
-        await RefreshTokenModel.findOne({ where: { token } });
+        await RefreshTokenModel.findOne({
+          where: { userId },
+        });
       if (!foundRefreshToken) {
         return null;
       }
-      return new RefreshTokenEntity(
+      const refreshTokenEntity = new RefreshTokenEntity(
         foundRefreshToken.id,
         foundRefreshToken.userId,
         foundRefreshToken.token,
@@ -41,6 +43,7 @@ export default class RefreshTokenRepositoryImplSequelize
         foundRefreshToken.createdAt,
         foundRefreshToken.updatedAt
       );
+      return refreshTokenEntity;
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;
@@ -94,9 +97,9 @@ export default class RefreshTokenRepositoryImplSequelize
     }
   };
 
-  public delete = async (token: string): Promise<void> => {
+  public delete = async (userId: number): Promise<void> => {
     try {
-      const rowCount = await RefreshTokenModel.destroy({ where: { token } });
+      const rowCount = await RefreshTokenModel.destroy({ where: { userId } });
       if (rowCount === 0) {
         throw new CustomError("Delete operation did not complete.", 500);
       }
