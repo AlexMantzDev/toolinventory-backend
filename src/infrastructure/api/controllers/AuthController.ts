@@ -20,8 +20,9 @@ export default class AuthController {
   public login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
     try {
+      const validEmail: Email = createEmail(email);
       const { accessToken, refreshToken } = await this.authService.login(
-        email,
+        validEmail,
         password
       );
       res.cookie("accessToken", accessToken, {
@@ -50,10 +51,29 @@ export default class AuthController {
     const { email, password } = req.body;
     try {
       await this.authService.register({
-        email,
+        email: createEmail(email),
         password,
       });
       res.status(201).json({ message: "User registration successful." });
+    } catch (err) {
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: "Internal server error." });
+      }
+    }
+  };
+
+  public resendVerifyLink = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    const { email } = req.body;
+    try {
+      await this.authService.resendVerifyLink(createEmail(email));
+      res
+        .status(200)
+        .json({ message: "Verification link was resent to user email." });
     } catch (err) {
       if (err instanceof CustomError) {
         res.status(err.statusCode).json({ message: err.message });
@@ -83,7 +103,7 @@ export default class AuthController {
     const { user } = req.body;
     const userId = req.user?.sub;
     try {
-      await this.authService.update(userId, user);
+      await this.authService.updateById(userId, user);
       res.status(200).json({ message: "User has been updated." });
     } catch (err) {
       if (err instanceof CustomError) {
@@ -103,6 +123,50 @@ export default class AuthController {
     try {
       await this.authService.verify(token.toString());
       res.status(200).json({ message: "User verification was a success." });
+    } catch (err) {
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: "Internal server error." });
+      }
+    }
+  };
+
+  public resetPassword = async (req: Request, res: Response): Promise<void> => {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ message: "Email is required." });
+      return;
+    }
+    try {
+      const validEmail: Email = createEmail(email);
+      await this.authService.sendResetLink(validEmail);
+      res.status(200).json({ message: "Check email for password reset link." });
+    } catch (err) {
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: "Internal server error." });
+      }
+    }
+  };
+
+  public changePassword = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    const { password } = req.body;
+    const { token } = req.query;
+    if (!password) {
+      res.status(400).json({ message: "Password is required." });
+    }
+    if (!token) {
+      res.status(401).json({ message: "Not authorized." });
+      return;
+    }
+    try {
+      await this.authService.resetPassword(token.toString(), password);
+      res.status(200).json({ message: "Password changed." });
     } catch (err) {
       if (err instanceof CustomError) {
         res.status(err.statusCode).json({ message: err.message });
@@ -148,9 +212,7 @@ export default class AuthController {
           return;
         }
         const newAccessToken: string =
-          await this.accessTokenService.createAccessTokenStringFromRefreshTokenString(
-            newRefreshToken
-          );
+          await this.accessTokenService.createAccessToken(newRefreshToken);
         if (!newAccessToken) {
           res.status(500).json({ message: "Internal server error." });
           return;

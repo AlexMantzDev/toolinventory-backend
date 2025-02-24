@@ -30,13 +30,25 @@ export default class NodeMailerInstance {
     return NodeMailerInstance.instance;
   }
 
-  public async send(destinationEmail: string, verifyLink: string) {
+  public async sendVerify(destinationEmail: string, verifyLink: string) {
     const info = await this._transporter.sendMail({
       from: '"Ethereal Mailer" <no-reply@example.com>',
       to: destinationEmail,
       subject: "Verify your email",
       text: `Click the link to verify your email: ${verifyLink}`,
       html: `<p>Click the link to verify your email: <a href="${verifyLink}">${verifyLink}</a></p>`,
+    });
+
+    return info;
+  }
+
+  public async sendReset(destinationEmail: string, resetLink: string) {
+    const info = await this._transporter.sendMail({
+      from: '"Ethereal Mailer" <no-reply@example.com>',
+      to: destinationEmail,
+      subject: "Reset your password",
+      text: `Click the link to reset your password: ${resetLink}">`,
+      html: `<p>Click the link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`,
     });
 
     return info;

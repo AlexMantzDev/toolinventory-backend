@@ -1,11 +1,10 @@
 import Tool from "../../domain/models/Tool";
 import ToolDTO from "../dtos/ToolDTO";
-import CustomError from "../../error/CustomError";
-import InternalServerError from "../../error/InternalServerError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import NotFoundError from "../../error/NotFoundError";
 import ToolRepository from "../../domain/respository/ToolRepository";
 import ToolboxDTO from "../dtos/ToolboxDTO";
+import { throwErrs } from "../../lib/utils/throwErrs";
 
 export default class ToolService {
   constructor(private toolRepository: ToolRepository) {}
@@ -15,10 +14,7 @@ export default class ToolService {
       const tool = new Tool(toolDTO.code, toolDTO.name, toolDTO.status);
       await this.toolRepository.saveSingleTool(tool);
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -35,10 +31,7 @@ export default class ToolService {
       const tool = new Tool(toolDTO.code, toolDTO.name, toolDTO.status);
       await this.toolRepository.update(toolId, tool);
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -46,10 +39,7 @@ export default class ToolService {
     try {
       await this.toolRepository.delete(toolId);
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -61,10 +51,7 @@ export default class ToolService {
       }
       return tool;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -72,10 +59,7 @@ export default class ToolService {
     try {
       return await this.toolRepository.getAll();
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 }

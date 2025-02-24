@@ -4,34 +4,38 @@ import UserDTO from "../dtos/UserDTO";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import UserRepositoryImplSequelize from "../../infrastructure/persistence/repository-impls/UserRepositoryImplSequelize";
-import InternalServerError from "../../error/InternalServerError";
 import NotFoundError from "../../error/NotFoundError";
 import UserEntity from "../../infrastructure/persistence/entities/UserEntity";
 import NodeMailerInstance from "../../infrastructure/email/NodeMailer";
 import AccessTokenService from "./AccessTokenService";
 import RefreshTokenService from "./RefreshTokenService";
-import { createEmail, Email } from "../../lib/utils/createEmail";
+import VerifyTokenService from "./VerifyTokenService";
+import ResetTokenService from "./ResetTokenService";
+import ResetTokenEntity from "../../infrastructure/persistence/entities/ResetTokenEntity";
+import { throwErrs } from "../../lib/utils/throwErrs";
+import { Email } from "../../lib/utils/createEmail";
 
 const VERIFY_SECRET = process.env.VERIFY_SECRET!;
 const PORT = process.env.PORT || 5000;
-const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}/api/v1/auth`; //TODO: this will be to the frontend
 const EMAIL_USER = process.env.EMAIL_USER!;
 
 export default class AuthService {
   constructor(
     private userRepository: UserRepositoryImplSequelize,
     private refreshTokenService: RefreshTokenService,
-    private accessTokenService: AccessTokenService
+    private accessTokenService: AccessTokenService,
+    private verifyTokenService: VerifyTokenService,
+    private resetTokenService: ResetTokenService
   ) {}
 
   public login = async (
-    email: string,
+    email: Email,
     password: string
   ): Promise<{ accessToken: string; refreshToken: string }> => {
     try {
-      const userEmail: Email = createEmail(email);
       const userEntity: UserEntity | null =
-        await this.userRepository.getByEmail(userEmail);
+        await this.userRepository.getByEmail(email);
       if (!userEntity) {
         throw new CustomError("Invalid email or password.", 400);
       }
@@ -50,39 +54,56 @@ export default class AuthService {
         refreshToken: refreshTokenString,
       };
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
   public register = async (userDTO: UserDTO): Promise<void> => {
     try {
-      const userEmail: Email = createEmail(userDTO.email);
-      const foundUser = await this.userRepository.getByEmail(userEmail);
+      const foundUser = await this.userRepository.getByEmail(userDTO.email);
       if (foundUser) {
         throw new CustomError("User with this email exists already.", 409);
       }
-      const verifyTokenString: string = jwt.sign({ userEmail }, VERIFY_SECRET, {
-        expiresIn: "1h",
-      });
-      //save verify token string to database
-      const verifyLink: string = `${BASE_URL}/api/v1/auth/verify?token=${verifyTokenString}`;
       const saltRounds: number = 10;
       const passwordHash: string = await bcrypt.hash(
         userDTO.password,
         saltRounds
       );
       const user = new User(userDTO.email, passwordHash);
-      const mailer = await NodeMailerInstance.getInstance();
-      mailer.send(EMAIL_USER, verifyLink);
-      return await this.userRepository.save(user);
-    } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
+      await this.userRepository.save(user);
+      const savedUser: UserEntity | null = await this.userRepository.getByEmail(
+        userDTO.email
+      );
+      if (!savedUser) {
+        throw new CustomError("Problem saving new user user.", 500);
       }
-      throw new InternalServerError("Internal server error.");
+      const verifyTokenString: string =
+        await this.verifyTokenService.issueNewVerifyToken(savedUser.getId());
+      const verifyLink: string = `${BASE_URL}/verify?token=${verifyTokenString}`; //TODO: this will be to the frontend verify page which will call the api route
+      const mailer = await NodeMailerInstance.getInstance();
+      mailer.sendVerify(EMAIL_USER, verifyLink);
+      return;
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public resendVerifyLink = async (email: Email): Promise<void> => {
+    try {
+      const savedUser: UserEntity | null = await this.userRepository.getByEmail(
+        email
+      );
+      if (!savedUser) {
+        throw new NotFoundError("Could not find user with email: " + email);
+      }
+      const verifyTokenString: string =
+        await this.verifyTokenService.issueNewVerifyToken(savedUser.getId());
+      const verifyLink: string = `${BASE_URL}/verify?token=${verifyTokenString}`; //TODO: this will be to the frontend verify page which will call the api route
+      const mailer = await NodeMailerInstance.getInstance();
+      mailer.sendVerify(EMAIL_USER, verifyLink);
+      return;
+    } catch (err) {
+      throwErrs(err);
     }
   };
 
@@ -90,23 +111,79 @@ export default class AuthService {
     try {
       this.refreshTokenService.deleteRefreshTokenEntry(userId);
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
-  public update = async (userId: number, userDTO: UserDTO): Promise<void> => {
+  public updateById = async (
+    userId: number,
+    userDTO: UserDTO
+  ): Promise<void> => {
     try {
-      const userEmail: Email = createEmail(userDTO.email);
-      const newUser: User = new User(userEmail, userDTO.password);
-      await this.userRepository.update(userId, newUser);
+      const newUser: User = new User(userDTO.email, userDTO.password);
+      await this.userRepository.updateById(userId, newUser);
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
+      throwErrs(err);
+    }
+  };
+
+  public updateByEmail = async (
+    email: Email,
+    userDTO: UserDTO
+  ): Promise<void> => {
+    try {
+      const newUser: User = new User(userDTO.email, userDTO.password);
+      await this.userRepository.updateByEmail(email, newUser);
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public sendResetLink = async (email: Email): Promise<void> => {
+    try {
+      const savedUser: UserEntity | null = await this.userRepository.getByEmail(
+        email
+      );
+      if (!savedUser) {
+        throw new NotFoundError("Could not find user with email: " + email);
       }
-      throw new InternalServerError("Internal server error.");
+      const resetTokenString: string =
+        await this.resetTokenService.issueNewResetToken(email);
+      const resetLink: string = `${BASE_URL}/change-pass?token=${resetTokenString}`; //TODO: this will be to the frontend password reset page which will call the api route
+      const mailer = await NodeMailerInstance.getInstance();
+      mailer.sendReset(EMAIL_USER, resetLink);
+      return;
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public resetPassword = async (
+    token: string,
+    password: string
+  ): Promise<void> => {
+    try {
+      const decoded: JwtPayload = jwt.decode(token) as JwtPayload;
+      const userId: number = Number(decoded?.sub);
+      if (!userId) {
+        throw new CustomError("Invalid token.", 401);
+      }
+      const foundUser: UserEntity | null = await this.userRepository.getById(
+        userId
+      );
+      if (!foundUser) {
+        throw new CustomError("Invalid token.", 401);
+      }
+      const foundResetToken: ResetTokenEntity | null =
+        await this.resetTokenService.findEntryByUserId(userId);
+      if (!foundResetToken) {
+        throw new CustomError("Invalid token.", 401);
+      }
+      const newUser: User = new User(foundUser.getEmail(), password);
+      await this.userRepository.updateById(foundUser.getId(), newUser);
+      await this.resetTokenService.deleteResetTokenEntry(userId);
+    } catch (err) {
+      throwErrs(err);
     }
   };
 
@@ -116,23 +193,18 @@ export default class AuthService {
         token,
         VERIFY_SECRET
       ) as JwtPayload;
-      const user: UserEntity | null = await this.userRepository.getByEmail(
-        decoded.email
-      );
+      const userId: number = Number(decoded.sub);
+      const user: UserEntity | null = await this.userRepository.getById(userId);
       if (!user) {
-        throw new NotFoundError(
-          "Could not find user with email: " + decoded.email
-        );
+        throw new CustomError("Invalid token.", 400);
       }
       if (user.getVerifiedAt() !== null) {
         throw new CustomError("User has already been verified.", 410);
       }
       await this.userRepository.verify(user.getId());
+      await this.verifyTokenService.deleteVerifyTokenEntry(userId);
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 }

@@ -1,19 +1,21 @@
+import { Email } from "../../lib/utils/createEmail";
+
 export type UserRoles = "admin" | "manager" | "associate";
 
 export default class User {
   private password: string;
-  private email: string;
+  private email: Email;
   private role: UserRoles;
   private verifiedAt: Date | null;
 
-  constructor(email: string, password: string) {
+  constructor(email: Email, password: string) {
     this.email = email;
     this.password = password;
     this.role = "associate";
     this.verifiedAt = null;
   }
 
-  getEmail = (): string => {
+  getEmail = (): Email => {
     return this.email;
   };
 

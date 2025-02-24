@@ -3,6 +3,8 @@ import UserRepository from "../../../domain/respository/UserRepository";
 import CustomError from "../../../error/CustomError";
 import InternalServerError from "../../../error/InternalServerError";
 import NotFoundError from "../../../error/NotFoundError";
+import { createEmail, Email } from "../../../lib/utils/createEmail";
+import { throwErrs } from "../../../lib/utils/throwErrs";
 import UserModel from "../../sequelize/models/UserModel";
 import UserEntity from "../entities/UserEntity";
 import bcrypt from "bcrypt";
@@ -18,10 +20,7 @@ export default class UserRepositoryImplSequelize implements UserRepository {
         role: user.getRole(),
       });
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -33,7 +32,7 @@ export default class UserRepositoryImplSequelize implements UserRepository {
       }
       const user = new UserEntity(
         foundUser.id,
-        foundUser.email,
+        createEmail(foundUser.email),
         foundUser.password,
         foundUser.role,
         foundUser.verifiedAt,
@@ -42,14 +41,11 @@ export default class UserRepositoryImplSequelize implements UserRepository {
       );
       return user;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
-  public getByEmail = async (email: string): Promise<UserEntity | null> => {
+  public getByEmail = async (email: Email): Promise<UserEntity | null> => {
     try {
       const foundUser: UserModel | null = await UserModel.findOne({
         where: { email },
@@ -57,7 +53,7 @@ export default class UserRepositoryImplSequelize implements UserRepository {
       if (!foundUser) return null;
       return new UserEntity(
         foundUser.id,
-        foundUser.email,
+        createEmail(foundUser.email),
         foundUser.password,
         foundUser.role,
         foundUser.verifiedAt,
@@ -65,10 +61,7 @@ export default class UserRepositoryImplSequelize implements UserRepository {
         foundUser.updatedAt
       );
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -79,7 +72,7 @@ export default class UserRepositoryImplSequelize implements UserRepository {
       foundUsers.forEach((foundUser) => {
         const user = new UserEntity(
           foundUser.id,
-          foundUser.email,
+          createEmail(foundUser.email),
           foundUser.password,
           foundUser.role,
           foundUser.verifiedAt,
@@ -90,14 +83,11 @@ export default class UserRepositoryImplSequelize implements UserRepository {
       });
       return users;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
-  public update = async (id: number, user: User): Promise<void> => {
+  public updateById = async (id: number, user: User): Promise<void> => {
     try {
       const password = user.getPassword();
       const salt = 10;
@@ -108,10 +98,24 @@ export default class UserRepositoryImplSequelize implements UserRepository {
         throw new CustomError("Update operation did not complete", 500);
       }
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
+      throwErrs(err);
+    }
+  };
+
+  public updateByEmail = async (email: Email, user: User): Promise<void> => {
+    try {
+      const password = user.getPassword();
+      const salt = 10;
+      const hashedPass = await bcrypt.hash(password, salt);
+      const secureUser = new User(user.getEmail(), hashedPass);
+      const [rowCount] = await UserModel.update(secureUser, {
+        where: { email },
+      });
+      if (rowCount === 0) {
+        throw new CustomError("Update operation did not complete", 500);
       }
-      throw new InternalServerError("Internal server error.");
+    } catch (err) {
+      throwErrs(err);
     }
   };
 
@@ -122,10 +126,7 @@ export default class UserRepositoryImplSequelize implements UserRepository {
         throw new CustomError("Delete operation did not complete", 500);
       }
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -133,9 +134,9 @@ export default class UserRepositoryImplSequelize implements UserRepository {
     try {
       const user: UserModel | null = await UserModel.findByPk(id);
       if (!user) {
-        throw new NotFoundError("Could not find user with id: " + id);
+        throw new CustomError("Invalid token.", 400);
       }
-      const verifiedUser = new User(user.email, user.password);
+      const verifiedUser = new User(createEmail(user.email), user.password);
       verifiedUser.setVerifiedAt();
       const [rowCount] = await UserModel.update(verifiedUser, {
         where: { id },
@@ -144,10 +145,7 @@ export default class UserRepositoryImplSequelize implements UserRepository {
         throw new CustomError("Update operation did not complete.", 500);
       }
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 }

@@ -1,7 +1,7 @@
 import RefreshToken from "../../../domain/models/RefreshToken";
 import RefreshTokenRepository from "../../../domain/respository/RefreshTokenRepository";
 import CustomError from "../../../error/CustomError";
-import InternalServerError from "../../../error/InternalServerError";
+import { throwErrs } from "../../../lib/utils/throwErrs";
 import RefreshTokenModel from "../../sequelize/models/RefreshTokenModel";
 import RefreshTokenEntity from "../entities/RefreshTokenEntity";
 
@@ -17,10 +17,7 @@ export default class RefreshTokenRepositoryImplSequelize
         expiresAt: refreshToken.getExpiresAt(),
       });
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -45,10 +42,7 @@ export default class RefreshTokenRepositoryImplSequelize
       );
       return refreshTokenEntity;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -60,21 +54,18 @@ export default class RefreshTokenRepositoryImplSequelize
       if (!foundRefreshTokens) return refreshTokens;
       foundRefreshTokens.forEach((foundRefreshToken: RefreshTokenModel) => {
         const token = new RefreshTokenEntity(
-          foundRefreshToken?.id,
-          foundRefreshToken?.userId,
-          foundRefreshToken?.token,
-          foundRefreshToken?.expiresAt,
-          foundRefreshToken?.createdAt,
-          foundRefreshToken?.updatedAt
+          foundRefreshToken.id,
+          foundRefreshToken.userId,
+          foundRefreshToken.token,
+          foundRefreshToken.expiresAt,
+          foundRefreshToken.createdAt,
+          foundRefreshToken.updatedAt
         );
         refreshTokens.push(token);
       });
       return refreshTokens;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -90,10 +81,7 @@ export default class RefreshTokenRepositoryImplSequelize
         throw new CustomError("Update operation did not complete.", 500);
       }
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -104,10 +92,7 @@ export default class RefreshTokenRepositoryImplSequelize
         throw new CustomError("Delete operation did not complete.", 500);
       }
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 }

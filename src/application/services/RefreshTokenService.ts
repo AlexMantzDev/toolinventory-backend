@@ -6,6 +6,7 @@ import RefreshTokenEntity from "../../infrastructure/persistence/entities/Refres
 import RefreshTokenRepositoryImplSequelize from "../../infrastructure/persistence/repository-impls/RefreshTokenRepositoryImplSequelize";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { throwErrs } from "../../lib/utils/throwErrs";
 
 const REFRESH_SECRET = process.env.REFRESH_SECRET!;
 
@@ -43,10 +44,7 @@ export default class RefreshTokenService {
       }
       return token;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -54,10 +52,7 @@ export default class RefreshTokenService {
     try {
       await this.refreshTokenRepository.delete(userId);
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -65,10 +60,7 @@ export default class RefreshTokenService {
     try {
       return await this.refreshTokenRepository.getAll();
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -85,10 +77,7 @@ export default class RefreshTokenService {
       }
       return foundRefreshToken;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 }

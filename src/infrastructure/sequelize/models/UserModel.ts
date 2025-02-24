@@ -1,10 +1,11 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "..";
 import { UserRoles } from "../../../domain/models/User";
+import { Email } from "../../../lib/utils/createEmail";
 
 class UserModel extends Model {
   public id!: number;
-  public email!: string;
+  public email!: Email;
   public password!: string;
   public role!: UserRoles;
   public verifiedAt!: Date | null;
@@ -21,6 +22,11 @@ UserModel.init(
     },
     email: {
       type: DataTypes.STRING,
+      validate: {
+        isEmail: {
+          msg: "Must be a valid email address.",
+        },
+      },
       unique: true,
       allowNull: false,
     },

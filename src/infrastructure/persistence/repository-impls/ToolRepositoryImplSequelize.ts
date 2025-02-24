@@ -5,6 +5,7 @@ import CustomError from "../../../error/CustomError";
 import ToolEntity from "../entities/ToolEntity";
 import ToolRepository from "../../../domain/respository/ToolRepository";
 import Toolbox from "../../../domain/models/Toolbox";
+import { throwErrs } from "../../../lib/utils/throwErrs";
 
 export default class ToolRepositoryImplSequelize implements ToolRepository {
   constructor() {}
@@ -17,10 +18,7 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
         status: tool.getStatus(),
       });
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -51,10 +49,7 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
       );
       return tool;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -79,10 +74,7 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
       });
       return tools;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -94,10 +86,7 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
         throw new CustomError("Update operation did not complete.", 500);
       }
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -108,10 +97,7 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
         throw new CustomError("Delete operation did not complete.", 500);
       }
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 }

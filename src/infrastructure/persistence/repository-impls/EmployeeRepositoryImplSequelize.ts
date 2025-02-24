@@ -1,7 +1,7 @@
 import Employee from "../../../domain/models/Employee";
 import EmployeeRepository from "../../../domain/respository/EmployeeRepository";
 import CustomError from "../../../error/CustomError";
-import InternalServerError from "../../../error/InternalServerError";
+import { throwErrs } from "../../../lib/utils/throwErrs";
 import { EmployeeModel } from "../../sequelize/models";
 import EmployeeEntity from "../entities/EmployeeEntity";
 
@@ -18,10 +18,7 @@ export default class EmployeeRepositoryImplSequelize
         lastName: employee.getLastName(),
       });
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -34,19 +31,16 @@ export default class EmployeeRepositoryImplSequelize
         return null;
       }
       const employee: EmployeeEntity = new EmployeeEntity(
-        foundEmployee?.id,
-        foundEmployee?.code,
-        foundEmployee?.firstName,
-        foundEmployee?.lastName,
-        foundEmployee?.createdAt,
-        foundEmployee?.updatedAt
+        foundEmployee.id,
+        foundEmployee.code,
+        foundEmployee.firstName,
+        foundEmployee.lastName,
+        foundEmployee.createdAt,
+        foundEmployee.updatedAt
       );
       return employee;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -55,23 +49,20 @@ export default class EmployeeRepositoryImplSequelize
       const foundEmployees: EmployeeModel[] = await EmployeeModel.findAll();
       const employees: EmployeeEntity[] = [];
       if (!foundEmployees) return employees;
-      foundEmployees.forEach((e: EmployeeModel) => {
+      foundEmployees.forEach((foundEmployee: EmployeeModel) => {
         const employee = new EmployeeEntity(
-          e?.id,
-          e?.code,
-          e?.firstName,
-          e?.lastName,
-          e?.createdAt,
-          e?.updatedAt
+          foundEmployee.id,
+          foundEmployee.code,
+          foundEmployee.firstName,
+          foundEmployee.lastName,
+          foundEmployee.createdAt,
+          foundEmployee.updatedAt
         );
         employees.push(employee);
       });
       return employees;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -85,10 +76,7 @@ export default class EmployeeRepositoryImplSequelize
       }
       return;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -99,10 +87,7 @@ export default class EmployeeRepositoryImplSequelize
         throw new CustomError("Delete operation did not complete.", 500);
       }
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 }

@@ -26,6 +26,18 @@ export default class AuthRoutes implements Routes {
       authenticate,
       this._controller.update.bind(this._controller)
     );
+    this._router.post(
+      "/resend",
+      this._controller.resendVerifyLink.bind(this._controller)
+    );
+    this._router.post(
+      "/reset-pass",
+      this._controller.resetPassword.bind(this._controller)
+    );
+    this._router.post(
+      "/change-pass",
+      this._controller.changePassword.bind(this._controller)
+    );
     this._router.get(
       "/verify",
       this._controller.verifyUser.bind(this._controller)

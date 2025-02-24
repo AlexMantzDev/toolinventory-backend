@@ -1,9 +1,10 @@
 import { UserRoles } from "../../../domain/models/User";
+import { Email } from "../../../lib/utils/createEmail";
 
 export default class UserEntity {
   constructor(
     private id: number,
-    private email: string,
+    private email: Email,
     private password: string,
     private role: UserRoles,
     private verifiedAt: Date | null,
@@ -15,7 +16,7 @@ export default class UserEntity {
     return this.id;
   };
 
-  public getEmail = (): string => {
+  public getEmail = (): Email => {
     return this.email;
   };
 

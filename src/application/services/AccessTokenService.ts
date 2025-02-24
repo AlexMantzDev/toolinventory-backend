@@ -3,7 +3,8 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import CustomError from "../../error/CustomError";
 import NotFoundError from "../../error/NotFoundError";
 import UserEntity from "../../infrastructure/persistence/entities/UserEntity";
-import InternalServerError from "../../error/InternalServerError";
+import { Email } from "../../lib/utils/createEmail";
+import { throwErrs } from "../../lib/utils/throwErrs";
 
 const REFRESH_SECRET = process.env.REFRESH_SECRET!;
 const ACCESS_SECRET = process.env.ACCESS_SECRET!;
@@ -12,7 +13,7 @@ export default class AccessTokenService {
   constructor(private userRepository: UserRepository) {}
 
   public createAccessTokenStringFromUserEmail = async (
-    email: string
+    email: Email
   ): Promise<string> => {
     try {
       const userEntity: UserEntity | null =
@@ -35,14 +36,11 @@ export default class AccessTokenService {
       );
       return accessToken;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
-  public createAccessTokenStringFromRefreshTokenString = async (
+  public createAccessToken = async (
     refreshTokenString: string
   ): Promise<string> => {
     try {
@@ -79,10 +77,7 @@ export default class AccessTokenService {
       );
       return newAccessToken;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 }

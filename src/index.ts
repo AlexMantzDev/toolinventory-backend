@@ -20,6 +20,10 @@ import RefreshTokenRepositoryImplSequelize from "./infrastructure/persistence/re
 import RefreshTokenService from "./application/services/RefreshTokenService";
 import cookieParser from "cookie-parser";
 import AccessTokenService from "./application/services/AccessTokenService";
+import VerifyTokenService from "./application/services/VerifyTokenService";
+import VerifyTokenRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/VerifyTokenRepositoryImplSequelize";
+import ResetTokenRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/ResetTokenRepositoryImplSequelize";
+import ResetTokenService from "./application/services/ResetTokenService";
 
 class Main {
   private constructor() {}
@@ -51,11 +55,20 @@ class Main {
     const userRepository = new UserRepositoryImplSequelize();
     const refreshTokenRepository = new RefreshTokenRepositoryImplSequelize();
     const refreshTokenService = new RefreshTokenService(refreshTokenRepository);
+    const resetTokenRepository = new ResetTokenRepositoryImplSequelize();
+    const resetTokenService = new ResetTokenService(
+      resetTokenRepository,
+      userRepository
+    );
     const accessTokenService = new AccessTokenService(userRepository);
+    const verifyTokenRepository = new VerifyTokenRepositoryImplSequelize();
+    const verifyTokenService = new VerifyTokenService(verifyTokenRepository);
     const authService = new AuthService(
       userRepository,
       refreshTokenService,
-      accessTokenService
+      accessTokenService,
+      verifyTokenService,
+      resetTokenService
     );
     const authController = new AuthController(
       authService,

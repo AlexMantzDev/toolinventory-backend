@@ -1,9 +1,8 @@
 import Employee from "../../domain/models/Employee";
 import EmployeeRepository from "../../domain/respository/EmployeeRepository";
-import CustomError from "../../error/CustomError";
-import InternalServerError from "../../error/InternalServerError";
 import NotFoundError from "../../error/NotFoundError";
 import EmployeeEntity from "../../infrastructure/persistence/entities/EmployeeEntity";
+import { throwErrs } from "../../lib/utils/throwErrs";
 import EmployeeDTO from "../dtos/EmployeeDTO";
 
 export default class EmployeeService {
@@ -18,10 +17,7 @@ export default class EmployeeService {
       );
       await this.employeeRepository.save(employee);
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -37,10 +33,7 @@ export default class EmployeeService {
       );
       await this.employeeRepository.update(employeeId, employee);
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -48,10 +41,7 @@ export default class EmployeeService {
     try {
       await this.employeeRepository.delete(employeeId);
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -66,10 +56,7 @@ export default class EmployeeService {
       }
       return employee;
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 
@@ -77,10 +64,7 @@ export default class EmployeeService {
     try {
       return await this.employeeRepository.getAll();
     } catch (err) {
-      if (err instanceof CustomError) {
-        throw err;
-      }
-      throw new InternalServerError("Internal server error.");
+      throwErrs(err);
     }
   };
 }
