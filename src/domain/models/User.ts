@@ -8,11 +8,16 @@ export default class User {
   private role: UserRoles;
   private verifiedAt: Date | null;
 
-  constructor(email: Email, password: string) {
+  constructor(
+    email: Email,
+    password: string,
+    role: UserRoles = "associate",
+    verifiedAt: Date | null = null
+  ) {
     this.email = email;
     this.password = password;
-    this.role = "associate";
-    this.verifiedAt = null;
+    this.role = role;
+    this.verifiedAt = verifiedAt;
   }
 
   getEmail = (): Email => {

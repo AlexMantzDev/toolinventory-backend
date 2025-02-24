@@ -1,7 +1,6 @@
 import User from "../../../domain/models/User";
 import UserRepository from "../../../domain/respository/UserRepository";
 import CustomError from "../../../error/CustomError";
-import InternalServerError from "../../../error/InternalServerError";
 import NotFoundError from "../../../error/NotFoundError";
 import { createEmail, Email } from "../../../lib/utils/createEmail";
 import { throwErrs } from "../../../lib/utils/throwErrs";
@@ -87,27 +86,21 @@ export default class UserRepositoryImplSequelize implements UserRepository {
     }
   };
 
-  public updateById = async (id: number, user: User): Promise<void> => {
+  public update = async (email: Email, user: User): Promise<void> => {
     try {
       const password = user.getPassword();
       const salt = 10;
-      const hashedPass = await bcrypt.hash(password, salt);
-      const secureUser = new User(user.getEmail(), hashedPass);
-      const [rowCount] = await UserModel.update(secureUser, { where: { id } });
-      if (rowCount === 0) {
-        throw new CustomError("Update operation did not complete", 500);
+      const foundUser = await UserModel.findOne({ where: { email } });
+      if (!foundUser) {
+        throw new NotFoundError("Could not find user with email: " + email);
       }
-    } catch (err) {
-      throwErrs(err);
-    }
-  };
-
-  public updateByEmail = async (email: Email, user: User): Promise<void> => {
-    try {
-      const password = user.getPassword();
-      const salt = 10;
       const hashedPass = await bcrypt.hash(password, salt);
-      const secureUser = new User(user.getEmail(), hashedPass);
+      const secureUser = new User(
+        user.getEmail(),
+        hashedPass,
+        foundUser.role,
+        foundUser.verifiedAt
+      );
       const [rowCount] = await UserModel.update(secureUser, {
         where: { email },
       });

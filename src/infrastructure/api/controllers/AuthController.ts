@@ -101,9 +101,9 @@ export default class AuthController {
 
   public update = async (req: Request, res: Response): Promise<void> => {
     const { user } = req.body;
-    const userId = req.user?.sub;
+    const email = req.user?.email;
     try {
-      await this.authService.updateById(userId, user);
+      await this.authService.update(email, user);
       res.status(200).json({ message: "User has been updated." });
     } catch (err) {
       if (err instanceof CustomError) {

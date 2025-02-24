@@ -115,25 +115,10 @@ export default class AuthService {
     }
   };
 
-  public updateById = async (
-    userId: number,
-    userDTO: UserDTO
-  ): Promise<void> => {
+  public update = async (email: Email, userDTO: UserDTO): Promise<void> => {
     try {
       const newUser: User = new User(userDTO.email, userDTO.password);
-      await this.userRepository.updateById(userId, newUser);
-    } catch (err) {
-      throwErrs(err);
-    }
-  };
-
-  public updateByEmail = async (
-    email: Email,
-    userDTO: UserDTO
-  ): Promise<void> => {
-    try {
-      const newUser: User = new User(userDTO.email, userDTO.password);
-      await this.userRepository.updateByEmail(email, newUser);
+      await this.userRepository.update(email, newUser);
     } catch (err) {
       throwErrs(err);
     }
@@ -180,7 +165,7 @@ export default class AuthService {
         throw new CustomError("Invalid token.", 401);
       }
       const newUser: User = new User(foundUser.getEmail(), password);
-      await this.userRepository.updateById(foundUser.getId(), newUser);
+      await this.userRepository.update(foundUser.getEmail(), newUser);
       await this.resetTokenService.deleteResetTokenEntry(userId);
     } catch (err) {
       throwErrs(err);

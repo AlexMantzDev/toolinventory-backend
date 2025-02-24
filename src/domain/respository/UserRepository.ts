@@ -7,7 +7,6 @@ export default interface UserRepository {
   getById(id: number): Promise<UserEntity | null>;
   getByEmail(email: Email): Promise<UserEntity | null>;
   getAll(): Promise<UserEntity[]>;
-  updateById(id: number, user: User): Promise<void>;
-  updateByEmail(email: Email, user: User): Promise<void>;
+  update(email: Email, user: User): Promise<void>;
   delete(id: number): Promise<void>;
 }

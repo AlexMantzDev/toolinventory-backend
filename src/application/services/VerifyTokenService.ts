@@ -1,6 +1,4 @@
 import VerifyToken from "../../domain/models/VerifyToken";
-import CustomError from "../../error/CustomError";
-import InternalServerError from "../../error/InternalServerError";
 import NotFoundError from "../../error/NotFoundError";
 import VerifyTokenEntity from "../../infrastructure/persistence/entities/VerifyTokenEntity";
 import VerifyTokenRepositoryImplSequelize from "../../infrastructure/persistence/repository-impls/VerifyTokenRepositoryImplSequelize";

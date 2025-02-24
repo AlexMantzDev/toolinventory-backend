@@ -1,6 +1,4 @@
 import RefreshToken from "../../domain/models/RefreshToken";
-import CustomError from "../../error/CustomError";
-import InternalServerError from "../../error/InternalServerError";
 import NotFoundError from "../../error/NotFoundError";
 import RefreshTokenEntity from "../../infrastructure/persistence/entities/RefreshTokenEntity";
 import RefreshTokenRepositoryImplSequelize from "../../infrastructure/persistence/repository-impls/RefreshTokenRepositoryImplSequelize";

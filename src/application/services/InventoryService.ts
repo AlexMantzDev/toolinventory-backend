@@ -1,5 +1,4 @@
 import CustomError from "../../error/CustomError";
-import InternalServerError from "../../error/InternalServerError";
 import EmployeeEntity from "../../infrastructure/persistence/entities/EmployeeEntity";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import InventoryRepository from "../../infrastructure/persistence/repository-impls/InventoryRepositoryImplSequelize";
