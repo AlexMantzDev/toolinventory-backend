@@ -1,3 +1,4 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 DROP TABLE IF EXISTS "users";
 
 CREATE TABLE "users" (
@@ -10,5 +11,5 @@ CREATE TABLE "users" (
   "updatedAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO "users"(email, password, role) VALUES
-('admin@test.com', 'admin', 'admin');
+INSERT INTO "users"(email, password, role, "verifiedAt") VALUES
+('admin@app.local', crypt('admin', gen_salt('bf')), 'admin', CURRENT_TIMESTAMP);

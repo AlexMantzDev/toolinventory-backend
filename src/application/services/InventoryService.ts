@@ -16,7 +16,7 @@ export default class InventoryService {
         toolId
       );
       if (assignedEmployee !== null) {
-        throw new CustomError("Tool is already checked out.", 402);
+        throw new CustomError("Tool is already checked out.", 409);
       }
       await this.inventoryRepository.assignToolToEmployee(employeeId, toolId);
     } catch (err) {

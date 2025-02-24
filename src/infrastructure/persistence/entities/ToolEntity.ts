@@ -1,4 +1,4 @@
-import { ToolStatus } from "../../../domain/models/Tool";
+import { ToolStatus, ToolType } from "../../../domain/models/Tool";
 
 export default class ToolEntity {
   constructor(
@@ -6,6 +6,9 @@ export default class ToolEntity {
     private code: string,
     private name: string,
     private status: ToolStatus,
+    private type: ToolType,
+    private parentId: number | null,
+    private location: string | null,
     private createdAt: Date,
     private updatedAt: Date
   ) {}
@@ -24,6 +27,18 @@ export default class ToolEntity {
 
   public getStatus = (): ToolStatus => {
     return this.status;
+  };
+
+  public getType = (): ToolType => {
+    return this.type;
+  };
+
+  public getParentId = (): number | null => {
+    return this.parentId;
+  };
+
+  public getLocation = (): string | null => {
+    return this.location;
   };
 
   public getCreatedAt = (): Date => {

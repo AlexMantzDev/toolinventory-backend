@@ -3,15 +3,14 @@ import ToolService from "../../../application/services/ToolService";
 import ToolDTO from "../../../application/dtos/ToolDTO";
 import NotFoundError from "../../../error/NotFoundError";
 import ToolEntity from "../../persistence/entities/ToolEntity";
-import CRUDController from "./Controller";
 
-export default class ToolController implements CRUDController {
+export default class ToolController {
   constructor(private toolService: ToolService) {}
 
   public create = async (req: Request, res: Response): Promise<void> => {
     try {
       const { tool }: { tool: ToolDTO } = req.body;
-      await this.toolService.create(tool);
+      await this.toolService.createSingleTool(tool);
       res.status(201).json({ message: "Tool added." });
     } catch (err) {
       res.status(500).json({ message: "Internal server error." });

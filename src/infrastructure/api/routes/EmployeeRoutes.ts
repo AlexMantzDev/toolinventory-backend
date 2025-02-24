@@ -1,10 +1,10 @@
 import { Router } from "express";
 import Routes from "./Routes";
-import CRUDController from "../controllers/Controller";
+import EmployeeController from "../controllers/EmployeeController";
 
 export default class EmployeeRoutes implements Routes {
   private readonly _router: Router;
-  constructor(private readonly _controller: CRUDController) {
+  constructor(private readonly _controller: EmployeeController) {
     this._router = Router();
     this.initRoutes();
   }

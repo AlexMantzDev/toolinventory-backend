@@ -38,14 +38,17 @@ export default class InventoryRepositoryImplSequelize
       ],
     });
     const tools: ToolEntity[] = [];
-    foundTools.forEach((e: ToolModel) => {
+    foundTools.forEach((foundTool: ToolModel) => {
       const tool = new ToolEntity(
-        e?.id,
-        e?.code,
-        e?.name,
-        e?.status,
-        e?.createdAt,
-        e?.updatedAt
+        foundTool.id,
+        foundTool.code,
+        foundTool.name,
+        foundTool.status,
+        foundTool.type,
+        foundTool.parentId,
+        foundTool.location,
+        foundTool.createdAt,
+        foundTool.updatedAt
       );
       tools.push(tool);
     });
@@ -79,7 +82,7 @@ export default class InventoryRepositoryImplSequelize
   };
 
   public getAllToolsIssued = async (): Promise<ToolEntity[]> => {
-    const records: ToolModel[] = await ToolModel.findAll({
+    const foundTools: ToolModel[] = await ToolModel.findAll({
       include: [
         {
           model: EmployeeModel,
@@ -89,18 +92,21 @@ export default class InventoryRepositoryImplSequelize
         },
       ],
     });
-    if (!records || records.length === 0) {
+    if (!foundTools || foundTools.length === 0) {
       return [];
     }
     const tools: ToolEntity[] = [];
-    records.forEach((e) => {
+    foundTools.forEach((foundTool) => {
       const tool = new ToolEntity(
-        e?.id,
-        e?.code,
-        e?.name,
-        e?.status,
-        e?.createdAt,
-        e?.updatedAt
+        foundTool.id,
+        foundTool.code,
+        foundTool.name,
+        foundTool.status,
+        foundTool.type,
+        foundTool.parentId,
+        foundTool.location,
+        foundTool.createdAt,
+        foundTool.updatedAt
       );
       tools.push(tool);
     });
@@ -108,7 +114,7 @@ export default class InventoryRepositoryImplSequelize
   };
 
   public getAllEmployeesWithTools = async (): Promise<EmployeeEntity[]> => {
-    const records: EmployeeModel[] = await EmployeeModel.findAll({
+    const foundEmployees: EmployeeModel[] = await EmployeeModel.findAll({
       include: [
         {
           model: ToolModel,
@@ -118,18 +124,18 @@ export default class InventoryRepositoryImplSequelize
         },
       ],
     });
-    if (!records || records.length === 0) {
+    if (!foundEmployees || foundEmployees.length === 0) {
       return [];
     }
     const employees: EmployeeEntity[] = [];
-    records.forEach((e) => {
+    foundEmployees.forEach((foundEmployee) => {
       const employee = new EmployeeEntity(
-        e?.id,
-        e?.code,
-        e?.firstName,
-        e?.lastName,
-        e?.createdAt,
-        e?.updatedAt
+        foundEmployee?.id,
+        foundEmployee?.code,
+        foundEmployee?.firstName,
+        foundEmployee?.lastName,
+        foundEmployee?.createdAt,
+        foundEmployee?.updatedAt
       );
       employees.push(employee);
     });

@@ -17,4 +17,7 @@ ToolModel.belongsToMany(EmployeeModel, {
   as: "employees",
 });
 
+ToolModel.hasMany(ToolModel, { foreignKey: "parentId", as: "childTools" });
+ToolModel.belongsTo(ToolModel, { foreignKey: "parentId", as: "parentTool" });
+
 export { EmployeeModel, ToolModel, EmployeesToolsModel };

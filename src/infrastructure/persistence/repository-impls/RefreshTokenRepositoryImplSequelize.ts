@@ -58,14 +58,14 @@ export default class RefreshTokenRepositoryImplSequelize
         await RefreshTokenModel.findAll();
       const refreshTokens: RefreshTokenEntity[] = [];
       if (!foundRefreshTokens) return refreshTokens;
-      foundRefreshTokens.forEach((e: RefreshTokenModel) => {
+      foundRefreshTokens.forEach((foundRefreshToken: RefreshTokenModel) => {
         const token = new RefreshTokenEntity(
-          e?.id,
-          e?.userId,
-          e?.token,
-          e?.expiresAt,
-          e?.createdAt,
-          e?.updatedAt
+          foundRefreshToken?.id,
+          foundRefreshToken?.userId,
+          foundRefreshToken?.token,
+          foundRefreshToken?.expiresAt,
+          foundRefreshToken?.createdAt,
+          foundRefreshToken?.updatedAt
         );
         refreshTokens.push(token);
       });

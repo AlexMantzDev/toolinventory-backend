@@ -10,6 +10,7 @@ import UserEntity from "../../infrastructure/persistence/entities/UserEntity";
 import NodeMailerInstance from "../../infrastructure/email/NodeMailer";
 import AccessTokenService from "./AccessTokenService";
 import RefreshTokenService from "./RefreshTokenService";
+import { createEmail, Email } from "../../lib/utils/createEmail";
 
 const VERIFY_SECRET = process.env.VERIFY_SECRET!;
 const PORT = process.env.PORT || 5000;
@@ -28,14 +29,15 @@ export default class AuthService {
     password: string
   ): Promise<{ accessToken: string; refreshToken: string }> => {
     try {
+      const userEmail: Email = createEmail(email);
       const userEntity: UserEntity | null =
-        await this.userRepository.getByEmail(email);
+        await this.userRepository.getByEmail(userEmail);
       if (!userEntity) {
-        throw new CustomError("Invalid email or password.", 403);
+        throw new CustomError("Invalid email or password.", 400);
       }
       const match = await bcrypt.compare(password, userEntity.getPassword());
       if (!match) {
-        throw new CustomError("Invalid email or password.", 403);
+        throw new CustomError("Invalid email or password.", 401);
       }
       const accessTokenString: string =
         await this.accessTokenService.createAccessTokenStringFromUserEmail(
@@ -57,12 +59,12 @@ export default class AuthService {
 
   public register = async (userDTO: UserDTO): Promise<void> => {
     try {
-      const foundUser = await this.userRepository.getByEmail(userDTO.email);
+      const userEmail: Email = createEmail(userDTO.email);
+      const foundUser = await this.userRepository.getByEmail(userEmail);
       if (foundUser) {
-        throw new CustomError("User with this email exists already.", 402);
+        throw new CustomError("User with this email exists already.", 409);
       }
-      const email = userDTO.email;
-      const verifyTokenString: string = jwt.sign({ email }, VERIFY_SECRET, {
+      const verifyTokenString: string = jwt.sign({ userEmail }, VERIFY_SECRET, {
         expiresIn: "1h",
       });
       //save verify token string to database
@@ -97,7 +99,8 @@ export default class AuthService {
 
   public update = async (userId: number, userDTO: UserDTO): Promise<void> => {
     try {
-      const newUser: User = new User(userDTO.email, userDTO.password);
+      const userEmail: Email = createEmail(userDTO.email);
+      const newUser: User = new User(userEmail, userDTO.password);
       await this.userRepository.update(userId, newUser);
     } catch (err) {
       if (err instanceof CustomError) {
@@ -122,7 +125,7 @@ export default class AuthService {
         );
       }
       if (user.getVerifiedAt() !== null) {
-        throw new CustomError("User has already been verified.", 400);
+        throw new CustomError("User has already been verified.", 410);
       }
       await this.userRepository.verify(user.getId());
     } catch (err) {

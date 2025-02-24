@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
 import { DataTypes } from "sequelize";
-import { ToolStatus } from "../../../domain/models/Tool";
+import Tool, { ToolStatus, ToolType } from "../../../domain/models/Tool";
 import sequelize from "..";
 
 class ToolModel extends Model {
@@ -8,6 +8,9 @@ class ToolModel extends Model {
   public code!: string;
   public name!: string;
   public status!: ToolStatus;
+  public type!: ToolType;
+  public parentId!: number;
+  public location!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -37,6 +40,22 @@ ToolModel.init(
         "inspection due"
       ),
       allowNull: false,
+    },
+    type: {
+      type: DataTypes.ENUM("single", "toolbox"),
+      allowNull: false,
+    },
+    parentId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: ToolModel,
+        key: "id",
+      },
+      onDelete: "SET NULL",
+    },
+    location: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     createdAt: {
       type: DataTypes.DATE,

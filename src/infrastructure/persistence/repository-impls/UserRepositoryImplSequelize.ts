@@ -76,15 +76,15 @@ export default class UserRepositoryImplSequelize implements UserRepository {
     try {
       const foundUsers: UserModel[] = await UserModel.findAll();
       const users: UserEntity[] = [];
-      foundUsers.forEach((e) => {
+      foundUsers.forEach((foundUser) => {
         const user = new UserEntity(
-          e.id,
-          e.email,
-          e.password,
-          e.role,
-          e.verifiedAt,
-          e.createdAt,
-          e.updatedAt
+          foundUser.id,
+          foundUser.email,
+          foundUser.password,
+          foundUser.role,
+          foundUser.verifiedAt,
+          foundUser.createdAt,
+          foundUser.updatedAt
         );
         users.push(user);
       });

@@ -1,15 +1,15 @@
 import Tool from "../../../domain/models/Tool";
 import { ToolModel } from "../../sequelize/models";
-import NotFoundError from "../../../error/NotFoundError";
 import InternalServerError from "../../../error/InternalServerError";
 import CustomError from "../../../error/CustomError";
 import ToolEntity from "../entities/ToolEntity";
 import ToolRepository from "../../../domain/respository/ToolRepository";
+import Toolbox from "../../../domain/models/Toolbox";
 
 export default class ToolRepositoryImplSequelize implements ToolRepository {
   constructor() {}
 
-  public save = async (tool: Tool): Promise<void> => {
+  public saveSingleTool = async (tool: Tool): Promise<void> => {
     try {
       await ToolModel.create({
         code: tool.getCode(),
@@ -24,6 +24,14 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
     }
   };
 
+  public saveChildTool = async (tool: Tool): Promise<void> => {
+    throw new Error("Not implemented.");
+  };
+
+  public saveToolbox = async (toolbox: Toolbox): Promise<void> => {
+    throw new Error("Not implemented.");
+  };
+
   public getById = async (id: number): Promise<ToolEntity | null> => {
     try {
       const foundTool: ToolModel | null = await ToolModel.findByPk(id);
@@ -35,6 +43,9 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
         foundTool.code,
         foundTool.name,
         foundTool.status,
+        foundTool.type,
+        foundTool.parentId,
+        foundTool.location,
         foundTool.createdAt,
         foundTool.updatedAt
       );
@@ -52,14 +63,17 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
       const foundTools: ToolModel[] = await ToolModel.findAll();
       const tools: ToolEntity[] = [];
       if (!foundTools) return tools;
-      foundTools.forEach((e: ToolModel) => {
+      foundTools.forEach((foundTool: ToolModel) => {
         const tool = new ToolEntity(
-          e?.id,
-          e?.code,
-          e?.name,
-          e?.status,
-          e?.createdAt,
-          e?.updatedAt
+          foundTool.id,
+          foundTool.code,
+          foundTool.name,
+          foundTool.status,
+          foundTool.type,
+          foundTool.parentId,
+          foundTool.location,
+          foundTool.createdAt,
+          foundTool.updatedAt
         );
         tools.push(tool);
       });

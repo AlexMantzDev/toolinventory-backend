@@ -6,6 +6,7 @@ import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import RefreshTokenEntity from "../../persistence/entities/RefreshTokenEntity";
 import AccessTokenService from "../../../application/services/AccessTokenService";
 import bcrypt from "bcrypt";
+import { createEmail, Email } from "../../../lib/utils/createEmail";
 
 const REFRESH_SECRET: Secret = process.env.REFRESH_SECRET!;
 

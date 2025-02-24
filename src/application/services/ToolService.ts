@@ -5,20 +5,29 @@ import InternalServerError from "../../error/InternalServerError";
 import ToolEntity from "../../infrastructure/persistence/entities/ToolEntity";
 import NotFoundError from "../../error/NotFoundError";
 import ToolRepository from "../../domain/respository/ToolRepository";
+import ToolboxDTO from "../dtos/ToolboxDTO";
 
 export default class ToolService {
   constructor(private toolRepository: ToolRepository) {}
 
-  public create = async (toolDTO: ToolDTO): Promise<void> => {
+  public createSingleTool = async (toolDTO: ToolDTO): Promise<void> => {
     try {
       const tool = new Tool(toolDTO.code, toolDTO.name, toolDTO.status);
-      await this.toolRepository.save(tool);
+      await this.toolRepository.saveSingleTool(tool);
     } catch (err) {
       if (err instanceof CustomError) {
         throw err;
       }
       throw new InternalServerError("Internal server error.");
     }
+  };
+
+  public createChildTool = async (toolDTO: ToolDTO): Promise<void> => {
+    throw new Error("Not implemented.");
+  };
+
+  public createToolbox = async (toolboxDTO: ToolboxDTO): Promise<void> => {
+    throw new Error("Not implemented.");
   };
 
   public update = async (toolId: number, toolDTO: ToolDTO): Promise<void> => {

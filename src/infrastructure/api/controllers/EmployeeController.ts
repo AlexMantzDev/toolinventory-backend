@@ -2,10 +2,9 @@ import EmployeeDTO from "../../../application/dtos/EmployeeDTO";
 import EmployeeService from "../../../application/services/EmployeeService";
 import NotFoundError from "../../../error/NotFoundError";
 import EmployeeEntity from "../../persistence/entities/EmployeeEntity";
-import CRUDController from "./Controller";
 import { Request, Response } from "express";
 
-export default class EmployeeController implements CRUDController {
+export default class EmployeeController {
   constructor(private employeeService: EmployeeService) {}
 
   public create = async (req: Request, res: Response): Promise<void> => {
