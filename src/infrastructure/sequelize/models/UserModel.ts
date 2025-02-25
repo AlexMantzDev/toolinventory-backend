@@ -8,7 +8,9 @@ class UserModel extends Model {
   public email!: Email;
   public password!: string;
   public role!: UserRoles;
+  public isAllowed!: boolean;
   public verifiedAt!: Date | null;
+  public tokenVersion!: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -38,10 +40,20 @@ UserModel.init(
       type: DataTypes.ENUM("admin", "manager", "associate"),
       defaultValue: "associate",
     },
+    isAllowed: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
     verifiedAt: {
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: null,
+    },
+    tokenVersion: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
     },
     createdAt: {
       type: DataTypes.DATE,

@@ -29,13 +29,13 @@ export default class AuthController {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 60 * 60 * 1000, //1h
+        maxAge: 15 * 60 * 1000, //15min
       });
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000, //7days
+        maxAge: 1 * 24 * 60 * 60 * 1000, //1days
       });
       res.status(200).json({ message: "login successful." });
     } catch (err) {
@@ -159,6 +159,7 @@ export default class AuthController {
     const { token } = req.query;
     if (!password) {
       res.status(400).json({ message: "Password is required." });
+      return;
     }
     if (!token) {
       res.status(401).json({ message: "Not authorized." });
@@ -188,51 +189,95 @@ export default class AuthController {
         REFRESH_SECRET
       ) as JwtPayload;
       const userId = Number(decodedRefreshToken.sub);
-      if (!userId || userId === undefined) {
+      if (!userId) {
         res.status(400).json({ message: "Refresh token is invalid." });
         return;
       }
       const foundRefreshTokenEntity: RefreshTokenEntity =
         await this.refreshTokenService.findEntryByUserId(userId);
       if (!foundRefreshTokenEntity) {
-        res.status(401).json({ message: "Refresh token is invalid." });
+        res.status(400).json({ message: "Refresh token is invalid." });
         return;
       }
-      if (typeof decodedRefreshToken === "string") {
-        res.status(401).json({ message: "Invalid token." });
+      const savedToken = foundRefreshTokenEntity.getToken();
+      const matches = await bcrypt.compare(refreshToken, savedToken);
+      if (!matches) {
+        res.status(400).json({ message: "Refresh token is invalid." });
         return;
       }
-      const storedRefreshToken = foundRefreshTokenEntity.getToken();
-      const matches = await bcrypt.compare(refreshToken, storedRefreshToken);
-      if (matches) {
-        const newRefreshToken =
-          await this.refreshTokenService.issueNewRefreshToken(userId);
-        if (!newRefreshToken) {
-          res.status(500).json({ message: "Internal server error." });
-          return;
-        }
-        const newAccessToken: string =
-          await this.accessTokenService.createAccessToken(newRefreshToken);
-        if (!newAccessToken) {
-          res.status(500).json({ message: "Internal server error." });
-          return;
-        }
-        res.cookie("refreshToken", newRefreshToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "strict",
-          maxAge: 24 * 60 * 60 * 1000, //24h
-        });
-        res.cookie("accessToken", newAccessToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "strict",
-          maxAge: 60 * 60 * 1000, //1h
-        });
-        res.status(200).json({ message: "Access token refreshed." });
+      const newRefreshToken =
+        await this.refreshTokenService.issueNewRefreshToken(userId);
+      if (!newRefreshToken) {
+        res
+          .status(500)
+          .json({ message: "Error generating new refresh token." });
+        return;
+      }
+      const newAccessToken: string =
+        await this.accessTokenService.refreshAccessToken(newRefreshToken);
+      if (!newAccessToken) {
+        res.status(500).json({ message: "Error generating new access token" });
+        return;
+      }
+      res.cookie("refreshToken", newRefreshToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000, //24h
+      });
+      res.cookie("accessToken", newAccessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        maxAge: 60 * 60 * 1000, //1h
+      });
+      res.status(200).json({ message: "Access token refreshed." });
+    } catch (err) {
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).json({ message: err.message });
       } else {
-        res.status(403).json({ message: "Invalid token." });
+        res.status(500).json({ message: "Internal server error." });
       }
+    }
+  };
+
+  public denyUser = async (req: Request, res: Response): Promise<void> => {
+    const { email } = req.body;
+    const role = req.user?.role;
+    if (role !== "admin") {
+      res.status(403).json({ message: "Not authorized." });
+      return;
+    }
+    if (!email) {
+      res.status(400).json({ message: "Invalid email." });
+      return;
+    }
+    try {
+      await this.authService.denyUser(email);
+      res.status(200).json({ message: "User set to not allowed." });
+    } catch (err) {
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: "Internal server error." });
+      }
+    }
+  };
+
+  public permitUser = async (req: Request, res: Response): Promise<void> => {
+    const { email } = req.body;
+    const role = req.user?.role;
+    if (role !== "admin") {
+      res.status(403).json({ message: "Not authorized." });
+      return;
+    }
+    if (!email) {
+      res.status(400).json({ message: "Invalid email." });
+      return;
+    }
+    try {
+      await this.authService.permitUser(email);
+      res.status(200).json({ message: "User set to allowed." });
     } catch (err) {
       if (err instanceof CustomError) {
         res.status(err.statusCode).json({ message: err.message });

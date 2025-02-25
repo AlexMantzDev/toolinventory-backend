@@ -57,7 +57,7 @@ export default class InventoryController {
         await this.inventoryService.getToolsByEmployee(Number(employeeId));
       res.status(200).json({ tools });
     } catch (err) {
-      console.log(err);
+      res.status(500).json({ message: "Internal server error." });
     }
   };
 
@@ -71,7 +71,7 @@ export default class InventoryController {
         await this.inventoryService.getEmployeeByTool(Number(toolId));
       res.status(200).json({ employee });
     } catch (err) {
-      console.log(err);
+      res.status(500).json({ message: "Internal server error." });
     }
   };
 
@@ -86,7 +86,7 @@ export default class InventoryController {
       }
       res.status(200).json({ tools });
     } catch (err) {
-      console.log(err);
+      res.status(500).json({ message: "Internal server error." });
     }
   };
 
@@ -101,7 +101,7 @@ export default class InventoryController {
       }
       res.status(200).json({ employees });
     } catch (err) {
-      console.log(err);
+      res.status(500).json({ message: "Internal server error." });
     }
   };
 }

@@ -24,6 +24,7 @@ import VerifyTokenService from "./application/services/VerifyTokenService";
 import VerifyTokenRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/VerifyTokenRepositoryImplSequelize";
 import ResetTokenRepositoryImplSequelize from "./infrastructure/persistence/repository-impls/ResetTokenRepositoryImplSequelize";
 import ResetTokenService from "./application/services/ResetTokenService";
+import AuthMiddleware from "./infrastructure/api/middleware/AuthMiddleware";
 
 class Main {
   private constructor() {}
@@ -75,7 +76,8 @@ class Main {
       refreshTokenService,
       accessTokenService
     );
-    const authRoutes = new AuthRoutes(authController);
+    const authMiddleware = new AuthMiddleware(authService);
+    const authRoutes = new AuthRoutes(authController, authMiddleware);
     httpServer.addMiddleware(cookieParser());
     httpServer.addMiddleware(json());
     console.log("Assigning routes to Express...");

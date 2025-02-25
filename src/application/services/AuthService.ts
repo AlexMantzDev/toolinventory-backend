@@ -4,7 +4,6 @@ import UserDTO from "../dtos/UserDTO";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import UserRepositoryImplSequelize from "../../infrastructure/persistence/repository-impls/UserRepositoryImplSequelize";
-import NotFoundError from "../../error/NotFoundError";
 import UserEntity from "../../infrastructure/persistence/entities/UserEntity";
 import NodeMailerInstance from "../../infrastructure/email/NodeMailer";
 import AccessTokenService from "./AccessTokenService";
@@ -39,20 +38,34 @@ export default class AuthService {
       if (!userEntity) {
         throw new CustomError("Invalid email or password.", 400);
       }
+      if (userEntity.getIsAllowed() === false) {
+        throw new CustomError("Not authorized.", 403);
+      }
       const match = await bcrypt.compare(password, userEntity.getPassword());
       if (!match) {
         throw new CustomError("Invalid email or password.", 401);
       }
       const accessTokenString: string =
-        await this.accessTokenService.createAccessTokenStringFromUserEmail(
-          userEntity.getEmail()
-        );
+        await this.accessTokenService.createAccessToken(userEntity.getEmail());
       const refreshTokenString: string =
         await this.refreshTokenService.issueNewRefreshToken(userEntity.getId());
       return {
         accessToken: accessTokenString,
         refreshToken: refreshTokenString,
       };
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public checkTokenVersion = async (
+    supplied: number,
+    email: Email
+  ): Promise<boolean> => {
+    try {
+      const stored: number = await this.userRepository.getTokenVersion(email);
+      if (supplied !== stored) return false;
+      else return true;
     } catch (err) {
       throwErrs(err);
     }
@@ -94,7 +107,7 @@ export default class AuthService {
         email
       );
       if (!savedUser) {
-        throw new NotFoundError("Could not find user with email: " + email);
+        throw new CustomError("Invalid email.", 400);
       }
       const verifyTokenString: string =
         await this.verifyTokenService.issueNewVerifyToken(savedUser.getId());
@@ -130,7 +143,7 @@ export default class AuthService {
         email
       );
       if (!savedUser) {
-        throw new NotFoundError("Could not find user with email: " + email);
+        throw new CustomError("Invalid email.", 400);
       }
       const resetTokenString: string =
         await this.resetTokenService.issueNewResetToken(email);
@@ -188,6 +201,41 @@ export default class AuthService {
       }
       await this.userRepository.verify(user.getId());
       await this.verifyTokenService.deleteVerifyTokenEntry(userId);
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public denyUser = async (email: Email): Promise<void> => {
+    try {
+      if (!email) {
+        throw new CustomError("Invalid email.", 400);
+      }
+      const user: UserEntity | null = await this.userRepository.getByEmail(
+        email
+      );
+      if (!user) {
+        throw new CustomError("Invalid email.", 400);
+      }
+      await this.userRepository.deny(user.getId());
+      await this.refreshTokenService.deleteRefreshTokenEntry(user.getId());
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public permitUser = async (email: Email): Promise<void> => {
+    try {
+      if (!email) {
+        throw new CustomError("Invalid email.", 400);
+      }
+      const user: UserEntity | null = await this.userRepository.getByEmail(
+        email
+      );
+      if (!user) {
+        throw new CustomError("Invalid email.", 400);
+      }
+      await this.userRepository.permit(user.getId());
     } catch (err) {
       throwErrs(err);
     }

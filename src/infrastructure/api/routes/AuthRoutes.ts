@@ -1,11 +1,14 @@
 import { Router } from "express";
 import Routes from "./Routes";
 import AuthController from "../controllers/AuthController";
-import { authenticate } from "../middleware/authHandler";
+import AuthMiddleware from "../middleware/AuthMiddleware";
 
 export default class AuthRoutes implements Routes {
   private readonly _router: Router;
-  constructor(private readonly _controller: AuthController) {
+  constructor(
+    private readonly _controller: AuthController,
+    private authMiddleware: AuthMiddleware
+  ) {
     this._router = Router();
     this.initRoutes();
   }
@@ -14,7 +17,7 @@ export default class AuthRoutes implements Routes {
     this._router.post("/login", this._controller.login.bind(this._controller));
     this._router.post(
       "/logout",
-      authenticate,
+      this.authMiddleware.authenticate,
       this._controller.logout.bind(this._controller)
     );
     this._router.post(
@@ -23,7 +26,7 @@ export default class AuthRoutes implements Routes {
     );
     this._router.put(
       "/update",
-      authenticate,
+      this.authMiddleware.authenticate,
       this._controller.update.bind(this._controller)
     );
     this._router.post(
@@ -45,6 +48,16 @@ export default class AuthRoutes implements Routes {
     this._router.post(
       "/refresh",
       this._controller.refresh.bind(this._controller)
+    );
+    this._router.put(
+      "/deny-user",
+      this.authMiddleware.authenticate,
+      this._controller.denyUser.bind(this._controller)
+    );
+    this._router.put(
+      "/permit-user",
+      this.authMiddleware.authenticate,
+      this._controller.permitUser.bind(this._controller)
     );
   };
 

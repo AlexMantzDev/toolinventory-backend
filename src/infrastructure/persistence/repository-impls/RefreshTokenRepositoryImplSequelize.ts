@@ -87,10 +87,7 @@ export default class RefreshTokenRepositoryImplSequelize
 
   public delete = async (userId: number): Promise<void> => {
     try {
-      const rowCount = await RefreshTokenModel.destroy({ where: { userId } });
-      if (rowCount === 0) {
-        throw new CustomError("Delete operation did not complete.", 500);
-      }
+      await RefreshTokenModel.destroy({ where: { userId } });
     } catch (err) {
       throwErrs(err);
     }

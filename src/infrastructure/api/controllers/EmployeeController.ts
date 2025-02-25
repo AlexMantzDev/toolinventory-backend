@@ -1,5 +1,6 @@
 import EmployeeDTO from "../../../application/dtos/EmployeeDTO";
 import EmployeeService from "../../../application/services/EmployeeService";
+import CustomError from "../../../error/CustomError";
 import NotFoundError from "../../../error/NotFoundError";
 import EmployeeEntity from "../../persistence/entities/EmployeeEntity";
 import { Request, Response } from "express";
@@ -13,7 +14,11 @@ export default class EmployeeController {
       await this.employeeService.create(employee);
       res.status(201).json({ message: "Employee added." });
     } catch (err) {
-      res.status(500).json({ message: "Internal server error." });
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: "Internal server error." });
+      }
     }
   };
 
@@ -27,7 +32,11 @@ export default class EmployeeController {
       if (err instanceof NotFoundError) {
         res.status(404).json({ message: "Could not find tool with id: " + id });
       } else {
-        res.status(500).json({ message: "Internal server error." });
+        if (err instanceof CustomError) {
+          res.status(err.statusCode).json({ message: err.message });
+        } else {
+          res.status(500).json({ message: "Internal server error." });
+        }
       }
     }
   };
@@ -45,7 +54,11 @@ export default class EmployeeController {
           .status(404)
           .json({ message: "Could not find employee with id: " + id });
       } else {
-        res.status(500).json({ message: "Internal server error." });
+        if (err instanceof CustomError) {
+          res.status(err.statusCode).json({ message: err.message });
+        } else {
+          res.status(500).json({ message: "Internal server error." });
+        }
       }
     }
   };
@@ -55,7 +68,11 @@ export default class EmployeeController {
       const employees: EmployeeEntity[] = await this.employeeService.findAll();
       res.status(200).json({ employees });
     } catch (err) {
-      res.status(500).json({ message: "Internal server error." });
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: "Internal server error." });
+      }
     }
   };
 
@@ -70,7 +87,11 @@ export default class EmployeeController {
           .status(404)
           .json({ message: "Could not find employee with id: " + id });
       } else {
-        res.status(500).json({ message: "Internal server error." });
+        if (err instanceof CustomError) {
+          res.status(err.statusCode).json({ message: err.message });
+        } else {
+          res.status(500).json({ message: "Internal server error." });
+        }
       }
     }
   };

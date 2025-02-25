@@ -3,6 +3,7 @@ import ToolService from "../../../application/services/ToolService";
 import ToolDTO from "../../../application/dtos/ToolDTO";
 import NotFoundError from "../../../error/NotFoundError";
 import ToolEntity from "../../persistence/entities/ToolEntity";
+import CustomError from "../../../error/CustomError";
 
 export default class ToolController {
   constructor(private toolService: ToolService) {}
@@ -13,7 +14,11 @@ export default class ToolController {
       await this.toolService.createSingleTool(tool);
       res.status(201).json({ message: "Tool added." });
     } catch (err) {
-      res.status(500).json({ message: "Internal server error." });
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: "Internal server error." });
+      }
     }
   };
 
@@ -27,7 +32,11 @@ export default class ToolController {
       if (err instanceof NotFoundError) {
         res.status(404).json({ message: "Could not find tool with id: " + id });
       } else {
-        res.status(500).json({ message: "Internal server error." });
+        if (err instanceof CustomError) {
+          res.status(err.statusCode).json({ message: err.message });
+        } else {
+          res.status(500).json({ message: "Internal server error." });
+        }
       }
     }
   };
@@ -41,7 +50,11 @@ export default class ToolController {
       if (err instanceof NotFoundError) {
         res.status(404).json({ message: "Could not find tool with id: " + id });
       } else {
-        res.status(500).json({ message: "Internal server error." });
+        if (err instanceof CustomError) {
+          res.status(err.statusCode).json({ message: err.message });
+        } else {
+          res.status(500).json({ message: "Internal server error." });
+        }
       }
     }
   };
@@ -51,7 +64,11 @@ export default class ToolController {
       const tools: ToolEntity[] = await this.toolService.findAll();
       res.status(200).json({ tools });
     } catch (err) {
-      res.status(500).json({ message: "Internal server error." });
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: "Internal server error." });
+      }
     }
   };
 
@@ -64,7 +81,11 @@ export default class ToolController {
       if (err instanceof NotFoundError) {
         res.status(404).json({ message: "Could not find tool with id: " + id });
       } else {
-        res.status(500).json({ message: "Internal server error." });
+        if (err instanceof CustomError) {
+          res.status(err.statusCode).json({ message: err.message });
+        } else {
+          res.status(500).json({ message: "Internal server error." });
+        }
       }
     }
   };

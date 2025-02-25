@@ -7,6 +7,7 @@ import { Email } from "../../lib/utils/createEmail";
 import UserRepository from "../../domain/respository/UserRepository";
 import ResetTokenRepository from "../../domain/respository/ResetTokenRepository";
 import { throwErrs } from "../../lib/utils/throwErrs";
+import CustomError from "../../error/CustomError";
 
 const RESET_SECRET = process.env.RESET_SECRET!;
 
@@ -33,7 +34,7 @@ export default class ResetTokenService {
     try {
       const user = await this.userRepository.getByEmail(email);
       if (!user) {
-        throw new NotFoundError("Could not find user with email: " + email);
+        throw new CustomError("Invalid email.", 400);
       }
       const oldToken: ResetTokenEntity | null =
         await this.resetTokenRepository.getByUserId(user.getId());

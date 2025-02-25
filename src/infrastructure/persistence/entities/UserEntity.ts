@@ -7,7 +7,9 @@ export default class UserEntity {
     private email: Email,
     private password: string,
     private role: UserRoles,
+    private isAllowed: boolean,
     private verifiedAt: Date | null,
+    private tokenVersion: number,
     private createdAt: Date,
     private updatedAt: Date
   ) {}
@@ -28,8 +30,16 @@ export default class UserEntity {
     return this.role;
   };
 
+  public getIsAllowed = (): boolean => {
+    return this.isAllowed;
+  };
+
   public getVerifiedAt = (): Date | null => {
     return this.verifiedAt;
+  };
+
+  public getTokenVersion = (): number => {
+    return this.tokenVersion;
   };
 
   public getCreatedAt = (): Date => {

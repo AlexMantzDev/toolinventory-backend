@@ -21,7 +21,7 @@ export default class RefreshTokenService {
         scope: "refresh_token",
       },
       REFRESH_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "1d" }
     );
     return refreshTokenString;
   };
@@ -30,7 +30,7 @@ export default class RefreshTokenService {
     try {
       const oldToken: RefreshTokenEntity | null =
         await this.refreshTokenRepository.getRefreshTokenByUserId(userId);
-      const exp = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      const exp = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000); //1day
       const token = this.createRefreshTokenString(userId);
       const saltRounds = 10;
       const hashedToken = await bcrypt.hash(token, saltRounds);

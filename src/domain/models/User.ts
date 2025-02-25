@@ -6,18 +6,24 @@ export default class User {
   private password: string;
   private email: Email;
   private role: UserRoles;
+  private isAllowed: boolean;
   private verifiedAt: Date | null;
+  private tokenVersion: number;
 
   constructor(
     email: Email,
     password: string,
     role: UserRoles = "associate",
-    verifiedAt: Date | null = null
+    isAllowed: boolean = true,
+    verifiedAt: Date | null = null,
+    tokenVersion: number = 1
   ) {
     this.email = email;
     this.password = password;
     this.role = role;
+    this.isAllowed = isAllowed;
     this.verifiedAt = verifiedAt;
+    this.tokenVersion = tokenVersion;
   }
 
   getEmail = (): Email => {
@@ -32,11 +38,15 @@ export default class User {
     return this.role;
   };
 
+  getIsAllowed = (): boolean => {
+    return this.isAllowed;
+  };
+
   getVerifiedAt = (): Date | null => {
     return this.verifiedAt;
   };
 
-  setVerifiedAt = (): void => {
-    this.verifiedAt = new Date(Date.now());
+  getTokenVersion = (): number => {
+    return this.tokenVersion;
   };
 }

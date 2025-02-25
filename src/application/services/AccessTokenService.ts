@@ -1,7 +1,6 @@
 import UserRepository from "../../domain/respository/UserRepository";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import CustomError from "../../error/CustomError";
-import NotFoundError from "../../error/NotFoundError";
 import UserEntity from "../../infrastructure/persistence/entities/UserEntity";
 import { Email } from "../../lib/utils/createEmail";
 import { throwErrs } from "../../lib/utils/throwErrs";
@@ -12,14 +11,12 @@ const ACCESS_SECRET = process.env.ACCESS_SECRET!;
 export default class AccessTokenService {
   constructor(private userRepository: UserRepository) {}
 
-  public createAccessTokenStringFromUserEmail = async (
-    email: Email
-  ): Promise<string> => {
+  public createAccessToken = async (email: Email): Promise<string> => {
     try {
       const userEntity: UserEntity | null =
         await this.userRepository.getByEmail(email);
       if (!userEntity) {
-        throw new NotFoundError("Could not find user with email: " + email);
+        throw new CustomError("Invalid email.", 400);
       }
       const accessToken: string = jwt.sign(
         {
@@ -28,10 +25,11 @@ export default class AccessTokenService {
           iat: Date.now() / 1000,
           scope: "access_token",
           email: userEntity.getEmail(),
+          version: userEntity.getTokenVersion(),
         },
         ACCESS_SECRET,
         {
-          expiresIn: "1h",
+          expiresIn: "15min",
         }
       );
       return accessToken;
@@ -40,7 +38,7 @@ export default class AccessTokenService {
     }
   };
 
-  public createAccessToken = async (
+  public refreshAccessToken = async (
     refreshTokenString: string
   ): Promise<string> => {
     try {
@@ -58,9 +56,7 @@ export default class AccessTokenService {
         Number(refreshToken.sub)
       );
       if (!userEntity) {
-        throw new NotFoundError(
-          "Could not find user with id: " + refreshToken.sub
-        );
+        throw new CustomError("Invalid token.", 400);
       }
       const newAccessToken = jwt.sign(
         {
@@ -69,10 +65,11 @@ export default class AccessTokenService {
           iat: Date.now(),
           scope: "access_token",
           email: userEntity.getEmail(),
+          version: userEntity.getTokenVersion(),
         },
         ACCESS_SECRET,
         {
-          expiresIn: "1h",
+          expiresIn: "15min",
         }
       );
       return newAccessToken;
