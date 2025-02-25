@@ -10,9 +10,38 @@ export default class ToolController {
 
   public create = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { tool }: { tool: ToolDTO } = req.body;
-      await this.toolService.createSingleTool(tool);
-      res.status(201).json({ message: "Tool added." });
+      const {
+        tool,
+        parentId,
+        location,
+      }: { tool: ToolDTO; parentId?: number; location?: string } = req.body;
+      switch (tool.type) {
+        case "single": {
+          await this.toolService.createSingleTool(tool);
+          res.status(201).json({ message: "Tool added." });
+          return;
+        }
+        case "child": {
+          if (!parentId || !location) {
+            res.status(400).json({
+              message:
+                "Must provide parent id and location description for child tools.",
+            });
+            return;
+          }
+          await this.toolService.createChildTool(tool, parentId, location);
+          res.status(200).json({ message: "Tool added." });
+          return;
+        }
+        case "parent": {
+          await this.toolService.createParentTool(tool);
+          res.status(200).json({ message: "Tool added." });
+          return;
+        }
+        default: {
+          res.status(500).json({ message: "Internal server error." });
+        }
+      }
     } catch (err) {
       if (err instanceof CustomError) {
         res.status(err.statusCode).json({ message: err.message });
