@@ -4,6 +4,4 @@ export default interface Toolbox {
   code: string;
   name: string;
   status: ToolStatus;
-  parentId: number;
-  location: string;
 }

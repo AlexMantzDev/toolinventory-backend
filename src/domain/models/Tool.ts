@@ -16,13 +16,20 @@ export default class Tool {
   private parentId: number | null;
   private location: string | null;
 
-  constructor(code: string, name: string, status: ToolStatus) {
+  constructor(
+    code: string,
+    name: string,
+    parentId: number | null = null,
+    location: string | null = null,
+    type: ToolType = "single",
+    status: ToolStatus = "serviceable"
+  ) {
     this.code = code;
     this.name = name;
+    this.parentId = parentId;
+    this.location = location;
+    this.type = type;
     this.status = status;
-    this.type = "single";
-    this.parentId = null;
-    this.location = null;
   }
 
   public setType(type: ToolType): void {

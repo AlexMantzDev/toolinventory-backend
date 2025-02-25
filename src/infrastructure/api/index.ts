@@ -34,7 +34,7 @@ export default class HttpServer {
     return this.server;
   };
 
-  public addRoutes = (path: string, router: Router) => {
+  public addRoutes = (path: string, router: Router): void => {
     this.app.use(path, router);
   };
 

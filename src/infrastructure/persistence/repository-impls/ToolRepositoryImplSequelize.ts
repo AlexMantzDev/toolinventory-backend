@@ -15,7 +15,6 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
       await ToolModel.create({
         code: tool.getCode(),
         name: tool.getName(),
-        status: tool.getStatus(),
       });
     } catch (err) {
       throwErrs(err);
@@ -23,11 +22,31 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
   };
 
   public saveChildTool = async (tool: Tool): Promise<void> => {
-    throw new Error("Not implemented.");
+    try {
+      await ToolModel.create({
+        code: tool.getCode(),
+        name: tool.getName(),
+        status: tool.getStatus(),
+        type: tool.getType(),
+        parentId: tool.getParentId(),
+        location: tool.getLocation(),
+      });
+    } catch (err) {
+      throwErrs(err);
+    }
   };
 
   public saveToolbox = async (toolbox: Toolbox): Promise<void> => {
-    throw new Error("Not implemented.");
+    try {
+      await ToolModel.create({
+        code: toolbox.getCode(),
+        name: toolbox.getName(),
+        status: toolbox.getStatus(),
+        type: toolbox.getType(),
+      });
+    } catch (err) {
+      throwErrs(err);
+    }
   };
 
   public getById = async (id: number): Promise<ToolEntity | null> => {

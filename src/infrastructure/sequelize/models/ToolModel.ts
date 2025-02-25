@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
 import { DataTypes } from "sequelize";
-import Tool, { ToolStatus, ToolType } from "../../../domain/models/Tool";
+import { ToolStatus, ToolType } from "../../../domain/models/Tool";
 import sequelize from "..";
 
 class ToolModel extends Model {
@@ -39,10 +39,12 @@ ToolModel.init(
         "calibration due",
         "inspection due"
       ),
+      defaultValue: "serviceable",
       allowNull: false,
     },
     type: {
-      type: DataTypes.ENUM("single", "toolbox"),
+      type: DataTypes.ENUM("single", "child", "parent"),
+      defaultValue: "single",
       allowNull: false,
     },
     parentId: {

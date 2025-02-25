@@ -20,9 +20,8 @@ export default class AuthController {
   public login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
     try {
-      const validEmail: Email = createEmail(email);
       const { accessToken, refreshToken } = await this.authService.login(
-        validEmail,
+        createEmail(email),
         password
       );
       res.cookie("accessToken", accessToken, {
@@ -84,7 +83,7 @@ export default class AuthController {
   };
 
   public logout = async (req: Request, res: Response): Promise<void> => {
-    const userId = req.user?.sub;
+    const { userId } = req.user;
     try {
       await this.authService.logout(userId);
       res.clearCookie("accessToken");
@@ -101,9 +100,9 @@ export default class AuthController {
 
   public update = async (req: Request, res: Response): Promise<void> => {
     const { user } = req.body;
-    const email = req.user?.email;
+    const { email } = req.user;
     try {
-      await this.authService.update(email, user);
+      await this.authService.update(createEmail(email), user);
       res.status(200).json({ message: "User has been updated." });
     } catch (err) {
       if (err instanceof CustomError) {
@@ -178,7 +177,7 @@ export default class AuthController {
   };
 
   public refresh = async (req: Request, res: Response): Promise<void> => {
-    const refreshToken = req.cookies.refreshToken;
+    const { refreshToken } = req.cookies;
     try {
       if (!refreshToken) {
         res.status(400).json({ message: "Missing refresh token." });
@@ -243,7 +242,7 @@ export default class AuthController {
 
   public denyUser = async (req: Request, res: Response): Promise<void> => {
     const { email } = req.body;
-    const role = req.user?.role;
+    const { role } = req.user;
     if (role !== "admin") {
       res.status(403).json({ message: "Not authorized." });
       return;
@@ -253,7 +252,7 @@ export default class AuthController {
       return;
     }
     try {
-      await this.authService.denyUser(email);
+      await this.authService.denyUser(createEmail(email));
       res.status(200).json({ message: "User set to not allowed." });
     } catch (err) {
       if (err instanceof CustomError) {
@@ -266,7 +265,7 @@ export default class AuthController {
 
   public permitUser = async (req: Request, res: Response): Promise<void> => {
     const { email } = req.body;
-    const role = req.user?.role;
+    const { role } = req.user;
     if (role !== "admin") {
       res.status(403).json({ message: "Not authorized." });
       return;
@@ -276,7 +275,7 @@ export default class AuthController {
       return;
     }
     try {
-      await this.authService.permitUser(email);
+      await this.authService.permitUser(createEmail(email));
       res.status(200).json({ message: "User set to allowed." });
     } catch (err) {
       if (err instanceof CustomError) {
