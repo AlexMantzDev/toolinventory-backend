@@ -71,6 +71,14 @@ export default class AuthService {
     }
   };
 
+  public checkVerified = async (email: Email): Promise<boolean> => {
+    try {
+      return await this.userRepository.getIsVerified(email);
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
   public register = async (userDTO: UserDTO): Promise<void> => {
     try {
       const foundUser = await this.userRepository.getByEmail(userDTO.email);

@@ -229,4 +229,29 @@ export default class UserRepositoryImplSequelize implements UserRepository {
       throwErrs(err);
     }
   };
+
+  public getIsVerified = async (email: Email): Promise<boolean> => {
+    try {
+      const foundUser: UserModel | null = await UserModel.findOne({
+        where: { email },
+      });
+      if (!foundUser) {
+        throw new CustomError("Invalid email.", 400);
+      }
+      const userEntity = new UserEntity(
+        foundUser.id,
+        foundUser.email,
+        foundUser.password,
+        foundUser.role,
+        foundUser.isAllowed,
+        foundUser.verifiedAt,
+        foundUser.tokenVersion,
+        foundUser.createdAt,
+        foundUser.updatedAt
+      );
+      return !!userEntity.getVerifiedAt;
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
 }

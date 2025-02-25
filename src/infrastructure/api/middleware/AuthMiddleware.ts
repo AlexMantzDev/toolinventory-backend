@@ -22,7 +22,14 @@ export default class AuthMiddleware {
         ACCESS_SECRET
       ) as JwtPayload;
       if (!payload.email || !payload.version) {
-        res.status(400).send({ message: "Invalid token." });
+        res.status(400).json({ message: "Invalid token." });
+        return;
+      }
+      const isVerified: boolean = await this.authService.checkVerified(
+        payload.email
+      );
+      if (!isVerified) {
+        res.status(403).json({ message: "Email verification required." });
         return;
       }
       const validToken: boolean = await this.authService.checkTokenVersion(
@@ -30,7 +37,7 @@ export default class AuthMiddleware {
         payload.email
       );
       if (!validToken) {
-        res.status(403).send({ message: "Not Authorized." });
+        res.status(403).json({ message: "Not Authorized." });
         return;
       }
       req.user = payload;
