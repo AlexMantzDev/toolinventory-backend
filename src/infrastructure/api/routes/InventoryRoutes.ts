@@ -1,9 +1,13 @@
 import { Router } from "express";
 import InventoryController from "../controllers/InventoryController";
+import AuthMiddleware from "../middleware/AuthMiddleware";
 
 export default class InventoryRoutes {
   private readonly _router: Router;
-  constructor(private readonly _controller: InventoryController) {
+  constructor(
+    private readonly _controller: InventoryController,
+    private authMiddleware: AuthMiddleware
+  ) {
     this._router = Router();
     this.initRoutes();
   }
@@ -11,26 +15,32 @@ export default class InventoryRoutes {
   private initRoutes(): void {
     this._router.post(
       "/checkout",
+      this.authMiddleware.authenticate,
       this._controller.checkout.bind(this._controller)
     );
     this._router.delete(
       "/return",
+      this.authMiddleware.authenticate,
       this._controller.return.bind(this._controller)
     );
     this._router.get(
       "/lookup/employees/",
+      this.authMiddleware.authenticate,
       this._controller.getAllEmployeesWithTools.bind(this._controller)
     );
     this._router.get(
       "/lookup/employees/:employeeId",
+      this.authMiddleware.authenticate,
       this._controller.getToolsByEmployee.bind(this._controller)
     );
     this._router.get(
       "/lookup/tools",
+      this.authMiddleware.authenticate,
       this._controller.getAllCheckedOutTools.bind(this._controller)
     );
     this._router.get(
       "/lookup/tools/:toolId",
+      this.authMiddleware.authenticate,
       this._controller.getEmployeeByTool.bind(this._controller)
     );
     this._router.post("/", this._controller.checkout.bind(this._controller));

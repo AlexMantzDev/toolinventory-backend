@@ -40,7 +40,6 @@ class Main {
     const inventoryRepository = new InventoryRepositoryImplSequelize();
     const inventoryService = new InventoryService(inventoryRepository);
     const inventoryController = new InventoryController(inventoryService);
-    const inventoryRoutes = new InventoryRoutes(inventoryController);
     const userRepository = new UserRepositoryImplSequelize();
     const refreshTokenRepository = new RefreshTokenRepositoryImplSequelize();
     const refreshTokenService = new RefreshTokenService(refreshTokenRepository);
@@ -65,6 +64,10 @@ class Main {
       accessTokenService
     );
     const authMiddleware = new AuthMiddleware(authService);
+    const inventoryRoutes = new InventoryRoutes(
+      inventoryController,
+      authMiddleware
+    );
     const authRoutes = new AuthRoutes(authController, authMiddleware);
     console.log("Creating tool repository implementation...");
     const toolRepository = new ToolRepositoryImplSequelize();
@@ -101,7 +104,7 @@ class Main {
     );
     httpServer.addMiddleware(xssClean());
     httpServer.addMiddleware(hpp());
-    httpServer.addMiddleware(csurf());
+    // httpServer.addMiddleware(csurf());
     httpServer.addMiddleware(cookieParser());
     httpServer.addMiddleware(json());
     httpServer.addMiddleware(urlencoded({ extended: true }));

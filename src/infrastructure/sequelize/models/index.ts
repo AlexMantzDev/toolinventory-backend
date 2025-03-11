@@ -1,24 +1,25 @@
 import EmployeeModel from "./EmployeeModel";
 import ToolModel from "./ToolModel";
 import EmployeesToolsModel from "./EmployeesToolsModel";
-import EmployeeToolsModel from "./EmployeesToolsModel";
 import RefreshTokenModel from "./RefreshTokenModel";
 import UserModel from "./UserModel";
 import VerifyTokenModel from "./VerifyTokenModel";
 import ResetTokenModel from "./ResetTokenModel";
 
 EmployeeModel.belongsToMany(ToolModel, {
-  through: EmployeeToolsModel,
+  through: EmployeesToolsModel,
   foreignKey: "employeeId",
   otherKey: "toolId",
   as: "tools",
+  onDelete: "CASCADE",
 });
 
 ToolModel.belongsToMany(EmployeeModel, {
-  through: EmployeeToolsModel,
+  through: EmployeesToolsModel,
   foreignKey: "toolId",
   otherKey: "employeeId",
   as: "employees",
+  onDelete: "CASCADE",
 });
 
 ToolModel.hasMany(ToolModel, { foreignKey: "parentId", as: "childTools" });

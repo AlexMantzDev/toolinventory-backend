@@ -1,9 +1,8 @@
 import { Router } from "express";
-import Routes from "./Routes";
 import ToolController from "../controllers/ToolController";
 import AuthMiddleware from "../middleware/AuthMiddleware";
 
-export default class ToolRoutes implements Routes {
+export default class ToolRoutes {
   private readonly _router: Router;
   constructor(
     private readonly _controller: ToolController,

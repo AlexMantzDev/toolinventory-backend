@@ -83,7 +83,7 @@ export default class AuthController {
   };
 
   public logout = async (req: Request, res: Response): Promise<void> => {
-    const { userId } = req.user;
+    const { sub: userId } = req.user;
     try {
       await this.authService.logout(userId);
       res.clearCookie("accessToken");
