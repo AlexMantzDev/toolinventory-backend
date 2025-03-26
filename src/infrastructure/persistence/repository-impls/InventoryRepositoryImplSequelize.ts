@@ -1,4 +1,5 @@
 import InventoryRepository from "../../../domain/respository/InventoryRepository";
+import NotFoundError from "../../../error/NotFoundError";
 import { throwErrs } from "../../../lib/utils/throwErrs";
 import {
   EmployeeModel,
@@ -11,7 +12,7 @@ import ToolEntity from "../entities/ToolEntity";
 export default class InventoryRepositoryImplSequelize
   implements InventoryRepository
 {
-  public assignToolToEmployee = async (
+  public assignToolToEmployeeByIds = async (
     employeeId: number,
     toolId: number
   ): Promise<void> => {
@@ -22,7 +23,52 @@ export default class InventoryRepositoryImplSequelize
     }
   };
 
-  public removeToolFromEmployee = async (
+  public assignToolToEmployeeByCodes = async (
+    employeeCode: string,
+    toolCode: string
+  ): Promise<void> => {
+    try {
+      const foundEmployee = await EmployeeModel.findOne({
+        where: { code: employeeCode },
+      });
+      if (!foundEmployee) {
+        throw new NotFoundError(
+          "Could not find employee with code: " + employeeCode
+        );
+      }
+      const employee = new EmployeeEntity(
+        foundEmployee.id,
+        foundEmployee.code,
+        foundEmployee.firstName,
+        foundEmployee.lastName,
+        foundEmployee.createdAt,
+        foundEmployee.updatedAt
+      );
+      const foundTool = await ToolModel.findOne({ where: { code: toolCode } });
+      if (!foundTool) {
+        throw new NotFoundError("Could not find tool with code: " + toolCode);
+      }
+      const tool = new ToolEntity(
+        foundTool.id,
+        foundTool.code,
+        foundTool.name,
+        foundTool.status,
+        foundTool.type,
+        foundTool.parentId,
+        foundTool.location,
+        foundTool.createdAt,
+        foundTool.updatedAt
+      );
+      await EmployeesToolsModel.create({
+        employeeId: employee.getId(),
+        toolId: tool.getId(),
+      });
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public removeToolFromEmployeeByIds = async (
     employeeId: number,
     toolId: number
   ): Promise<void> => {
@@ -33,7 +79,51 @@ export default class InventoryRepositoryImplSequelize
     }
   };
 
-  public getToolsByEmployee = async (
+  public removeToolFromEmployeeByCodes = async (
+    employeeCode: string,
+    toolCode: string
+  ): Promise<void> => {
+    try {
+      const foundEmployee = await EmployeeModel.findOne({
+        where: { code: employeeCode },
+      });
+      if (!foundEmployee) {
+        throw new NotFoundError(
+          "Could not find employee with code: " + employeeCode
+        );
+      }
+      const employee = new EmployeeEntity(
+        foundEmployee.id,
+        foundEmployee.code,
+        foundEmployee.firstName,
+        foundEmployee.lastName,
+        foundEmployee.createdAt,
+        foundEmployee.updatedAt
+      );
+      const foundTool = await ToolModel.findOne({ where: { code: toolCode } });
+      if (!foundTool) {
+        throw new NotFoundError("Could not find tool with code: " + toolCode);
+      }
+      const tool = new ToolEntity(
+        foundTool.id,
+        foundTool.code,
+        foundTool.name,
+        foundTool.status,
+        foundTool.type,
+        foundTool.parentId,
+        foundTool.location,
+        foundTool.createdAt,
+        foundTool.updatedAt
+      );
+      await EmployeesToolsModel.destroy({
+        where: { employeeId: employee.getId(), toolId: tool.getId() },
+      });
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public getToolsByEmployeeId = async (
     employeeId: number
   ): Promise<ToolEntity[]> => {
     try {
@@ -68,7 +158,42 @@ export default class InventoryRepositoryImplSequelize
     }
   };
 
-  public getEmployeeByTool = async (
+  public getToolsByEmployeeCode = async (
+    employeeCode: string
+  ): Promise<ToolEntity[]> => {
+    try {
+      const foundTools: ToolModel[] = await ToolModel.findAll({
+        include: [
+          {
+            model: EmployeeModel,
+            as: "employees",
+            where: { code: employeeCode },
+            through: { attributes: [] },
+          },
+        ],
+      });
+      const tools: ToolEntity[] = [];
+      foundTools.forEach((foundTool: ToolModel) => {
+        const tool = new ToolEntity(
+          foundTool.id,
+          foundTool.code,
+          foundTool.name,
+          foundTool.status,
+          foundTool.type,
+          foundTool.parentId,
+          foundTool.location,
+          foundTool.createdAt,
+          foundTool.updatedAt
+        );
+        tools.push(tool);
+      });
+      return tools;
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public getEmployeeByToolId = async (
     toolId: number
   ): Promise<EmployeeEntity | null> => {
     try {
@@ -78,6 +203,36 @@ export default class InventoryRepositoryImplSequelize
             model: ToolModel,
             as: "tools",
             where: { id: toolId },
+            through: { attributes: [] },
+          },
+        ],
+      });
+      if (!foundEmployee) {
+        return null;
+      }
+      return new EmployeeEntity(
+        foundEmployee.id,
+        foundEmployee.code,
+        foundEmployee.firstName,
+        foundEmployee.lastName,
+        foundEmployee.createdAt,
+        foundEmployee.updatedAt
+      );
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public getEmployeeByToolCode = async (
+    toolCode: string
+  ): Promise<EmployeeEntity | null> => {
+    try {
+      const foundEmployee = await EmployeeModel.findOne({
+        include: [
+          {
+            model: ToolModel,
+            as: "tools",
+            where: { code: toolCode },
             through: { attributes: [] },
           },
         ],

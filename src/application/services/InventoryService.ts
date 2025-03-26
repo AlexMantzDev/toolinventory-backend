@@ -7,49 +7,109 @@ import { throwErrs } from "../../lib/utils/throwErrs";
 export default class InventoryService {
   constructor(private inventoryRepository: InventoryRepository) {}
 
-  public checkoutTool = async (
+  public checkoutToolByIds = async (
     employeeId: number,
     toolId: number
   ): Promise<void> => {
     try {
-      const assignedEmployee = await this.inventoryRepository.getEmployeeByTool(
-        toolId
-      );
+      const assignedEmployee =
+        await this.inventoryRepository.getEmployeeByToolId(toolId);
       if (assignedEmployee !== null) {
         throw new CustomError("Tool is already checked out.", 409);
       }
-      await this.inventoryRepository.assignToolToEmployee(employeeId, toolId);
+      await this.inventoryRepository.assignToolToEmployeeByIds(
+        employeeId,
+        toolId
+      );
     } catch (err) {
       throwErrs(err);
     }
   };
 
-  public returnTool = async (
+  public checkoutToolsByCodes = async (
+    employeeCode: string,
+    toolCode: string
+  ): Promise<void> => {
+    try {
+      const assignedEmployee =
+        await this.inventoryRepository.getEmployeeByToolCode(toolCode);
+      if (assignedEmployee !== null) {
+        throw new CustomError("Tool is already checked out.", 409);
+      }
+      await this.inventoryRepository.assignToolToEmployeeByCodes(
+        employeeCode,
+        toolCode
+      );
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public returnToolFromEmployeeByIds = async (
     employeeId: number,
     toolId: number
   ): Promise<void> => {
     try {
-      await this.inventoryRepository.removeToolFromEmployee(employeeId, toolId);
+      await this.inventoryRepository.removeToolFromEmployeeByIds(
+        employeeId,
+        toolId
+      );
     } catch (err) {
       throwErrs(err);
     }
   };
 
-  public getToolsByEmployee = async (
+  public returnToolFromEmployeeByCodes = async (
+    employeeCode: string,
+    toolCode: string
+  ): Promise<void> => {
+    try {
+      await this.inventoryRepository.removeToolFromEmployeeByCodes(
+        employeeCode,
+        toolCode
+      );
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public getToolsByEmployeeId = async (
     employeeId: number
   ): Promise<ToolEntity[]> => {
     try {
-      return await this.inventoryRepository.getToolsByEmployee(employeeId);
+      return await this.inventoryRepository.getToolsByEmployeeId(employeeId);
     } catch (err) {
       throwErrs(err);
     }
   };
 
-  public getEmployeeByTool = async (
+  public getToolsByEmployeeCode = async (
+    employeeCode: string
+  ): Promise<ToolEntity[]> => {
+    try {
+      return await this.inventoryRepository.getToolsByEmployeeCode(
+        employeeCode
+      );
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public getEmployeeByToolId = async (
     toolId: number
   ): Promise<EmployeeEntity | null> => {
     try {
-      return await this.inventoryRepository.getEmployeeByTool(toolId);
+      return await this.inventoryRepository.getEmployeeByToolId(toolId);
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
+  public getEmployeeByToolCode = async (
+    toolCode: string
+  ): Promise<EmployeeEntity | null> => {
+    try {
+      return await this.inventoryRepository.getEmployeeByToolCode(toolCode);
     } catch (err) {
       throwErrs(err);
     }

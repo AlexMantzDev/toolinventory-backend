@@ -7,6 +7,7 @@ export default interface ToolRepository {
   saveChildTool(tool: Tool): Promise<void>;
   saveToolbox(toolbox: Toolbox): Promise<void>;
   getById(id: number): Promise<ToolEntity | null>;
+  getByCode(code: string): Promise<ToolEntity | null>;
   getAll(): Promise<ToolEntity[]>;
   update(id: number, tool: Tool): Promise<void>;
   delete(id: number): Promise<void>;

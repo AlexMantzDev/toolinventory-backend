@@ -44,6 +44,28 @@ export default class EmployeeRepositoryImplSequelize
     }
   };
 
+  public getByCode = async (code: string): Promise<EmployeeEntity | null> => {
+    try {
+      const foundEmployee: EmployeeModel | null = await EmployeeModel.findOne({
+        where: { code },
+      });
+      if (!foundEmployee) {
+        return null;
+      }
+      const employee: EmployeeEntity = new EmployeeEntity(
+        foundEmployee.id,
+        foundEmployee.code,
+        foundEmployee.firstName,
+        foundEmployee.lastName,
+        foundEmployee.createdAt,
+        foundEmployee.updatedAt
+      );
+      return employee;
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
   public getAll = async (): Promise<EmployeeEntity[]> => {
     try {
       const foundEmployees: EmployeeModel[] = await EmployeeModel.findAll();

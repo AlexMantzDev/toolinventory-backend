@@ -14,6 +14,11 @@ export default class AuthRoutes {
 
   private initRoutes = () => {
     this._router.post("/login", this._controller.login.bind(this._controller));
+    this._router.get(
+      "/me",
+      this.authMiddleware.authenticate,
+      this._controller.me
+    );
     this._router.post(
       "/logout",
       this.authMiddleware.authenticate,

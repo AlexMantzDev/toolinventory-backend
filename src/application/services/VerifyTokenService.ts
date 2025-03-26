@@ -36,7 +36,10 @@ export default class VerifyTokenService {
       const hashedToken = await bcrypt.hash(token, saltRounds);
       const verifyToken = new VerifyToken(userId, hashedToken, exp);
       if (oldToken) {
-        this.verifyTokenRepository.update(oldToken.getToken(), verifyToken);
+        await this.verifyTokenRepository.update(
+          oldToken.getToken(),
+          verifyToken
+        );
       } else {
         await this.verifyTokenRepository.save(verifyToken);
       }

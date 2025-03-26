@@ -4,6 +4,7 @@ import Employee from "../models/Employee";
 export default interface EmployeeRepository {
   save(employee: Employee): Promise<void>;
   getById(id: number): Promise<EmployeeEntity | null>;
+  getByCode(code: string): Promise<EmployeeEntity | null>;
   getAll(): Promise<EmployeeEntity[]>;
   update(id: number, employee: Employee): Promise<void>;
   delete(id: number): Promise<void>;

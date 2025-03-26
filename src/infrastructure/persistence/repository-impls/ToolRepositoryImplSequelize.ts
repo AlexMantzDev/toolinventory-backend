@@ -72,6 +72,31 @@ export default class ToolRepositoryImplSequelize implements ToolRepository {
     }
   };
 
+  public getByCode = async (code: string): Promise<ToolEntity | null> => {
+    try {
+      const foundTool: ToolModel | null = await ToolModel.findOne({
+        where: { code },
+      });
+      if (!foundTool) {
+        return null;
+      }
+      const tool: ToolEntity = new ToolEntity(
+        foundTool.id,
+        foundTool.code,
+        foundTool.name,
+        foundTool.status,
+        foundTool.type,
+        foundTool.parentId,
+        foundTool.location,
+        foundTool.createdAt,
+        foundTool.updatedAt
+      );
+      return tool;
+    } catch (err) {
+      throwErrs(err);
+    }
+  };
+
   public getAll = async (): Promise<ToolEntity[]> => {
     try {
       const foundTools: ToolModel[] = await ToolModel.findAll();

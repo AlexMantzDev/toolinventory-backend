@@ -36,7 +36,10 @@ export default class RefreshTokenService {
       const hashedToken = await bcrypt.hash(token, saltRounds);
       const refreshToken = new RefreshToken(userId, hashedToken, exp);
       if (oldToken) {
-        this.refreshTokenRepository.update(oldToken.getToken(), refreshToken);
+        await this.refreshTokenRepository.update(
+          oldToken.getToken(),
+          refreshToken
+        );
       } else {
         await this.refreshTokenRepository.save(refreshToken);
       }

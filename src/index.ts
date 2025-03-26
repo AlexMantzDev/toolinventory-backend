@@ -92,7 +92,8 @@ class Main {
     httpServer.addMiddleware(helmet());
     httpServer.addMiddleware(
       cors({
-        origin: "http://localhost:5000",
+        origin: ["http://localhost:4200"],
+        credentials: true,
       })
     );
     httpServer.addMiddleware(

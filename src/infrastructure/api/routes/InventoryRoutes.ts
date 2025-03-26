@@ -16,12 +16,12 @@ export default class InventoryRoutes {
     this._router.post(
       "/checkout",
       this.authMiddleware.authenticate,
-      this._controller.checkout.bind(this._controller)
+      this._controller.checkoutTool.bind(this._controller)
     );
     this._router.delete(
       "/return",
       this.authMiddleware.authenticate,
-      this._controller.return.bind(this._controller)
+      this._controller.returnTool.bind(this._controller)
     );
     this._router.get(
       "/lookup/employees/",
@@ -29,7 +29,7 @@ export default class InventoryRoutes {
       this._controller.getAllEmployeesWithTools.bind(this._controller)
     );
     this._router.get(
-      "/lookup/employees/:employeeId",
+      "/lookup/employees/:value",
       this.authMiddleware.authenticate,
       this._controller.getToolsByEmployee.bind(this._controller)
     );
@@ -39,12 +39,18 @@ export default class InventoryRoutes {
       this._controller.getAllCheckedOutTools.bind(this._controller)
     );
     this._router.get(
-      "/lookup/tools/:toolId",
+      "/lookup/tools/:value",
       this.authMiddleware.authenticate,
       this._controller.getEmployeeByTool.bind(this._controller)
     );
-    this._router.post("/", this._controller.checkout.bind(this._controller));
-    this._router.delete("/", this._controller.return.bind(this._controller));
+    this._router.post(
+      "/",
+      this._controller.checkoutTool.bind(this._controller)
+    );
+    this._router.delete(
+      "/",
+      this._controller.returnTool.bind(this._controller)
+    );
   }
 
   public get router(): Router {

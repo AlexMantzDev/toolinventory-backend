@@ -24,17 +24,17 @@ export default class EmployeeRoutes {
       this._controller.create.bind(this._controller)
     );
     this._router.get(
-      "/:id",
+      "/:value",
       this.authMiddleware.authenticate,
-      this._controller.findById.bind(this._controller)
+      this._controller.find.bind(this._controller)
     );
     this._router.put(
-      "/:id",
+      "/:value",
       this.authMiddleware.authenticate,
       this._controller.update.bind(this._controller)
     );
     this._router.delete(
-      "/:id",
+      "/:value",
       this.authMiddleware.authenticate,
       this._controller.delete.bind(this._controller)
     );

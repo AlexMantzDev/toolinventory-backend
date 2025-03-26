@@ -17,6 +17,19 @@ export default class AuthController {
     private accessTokenService: AccessTokenService
   ) {}
 
+  public me = async (req: Request, res: Response): Promise<void> => {
+    const user = req.user;
+    try {
+      res.status(200).json({ user });
+    } catch (err) {
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).json({ message: err.message });
+      } else {
+        res.status(500).json({ message: "Internal server error." });
+      }
+    }
+  };
+
   public login = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
     try {
@@ -27,14 +40,16 @@ export default class AuthController {
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 15 * 60 * 1000, //15min
+        path: "/",
       });
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 1 * 24 * 60 * 60 * 1000, //1days
+        path: "/",
       });
       res.status(200).json({ message: "login successful." });
     } catch (err) {
@@ -86,8 +101,18 @@ export default class AuthController {
     const { sub: userId } = req.user;
     try {
       await this.authService.logout(userId);
-      res.clearCookie("accessToken");
-      res.clearCookie("refreshToken");
+      res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+      });
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+      });
       res.status(200).json({ message: "Logged out successfully." });
     } catch (err) {
       if (err instanceof CustomError) {

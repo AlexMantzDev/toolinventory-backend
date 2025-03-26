@@ -44,7 +44,7 @@ export default class ResetTokenService {
       const hashedToken = await bcrypt.hash(token, saltRounds);
       const resetToken = new ResetToken(user.getId(), hashedToken, exp);
       if (oldToken) {
-        this.resetTokenRepository.update(oldToken.getToken(), resetToken);
+        await this.resetTokenRepository.update(oldToken.getToken(), resetToken);
       } else {
         await this.resetTokenRepository.save(resetToken);
       }
